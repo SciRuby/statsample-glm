@@ -9,4 +9,5 @@ rvm:
 script: "bundle exec rspec"
 
 install:
+  - gem install bundler
   - bundle install
