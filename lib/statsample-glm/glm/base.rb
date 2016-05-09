@@ -31,7 +31,21 @@ module Statsample
                             .const_get("#{algorithm}").const_get("#{method}")
                             .new(@data_set, @dependent, @opts)
       end
-      
+
+      # Returns the coefficients of trained model
+      #
+      # @param [Symbol] as_a Specifies the form of output
+      #
+      # @return [Array, Hash] coefficients of the model
+      #
+      # @example
+      #   require 'statsample-glm'
+      #   data_set = Daru::DataFrame.from_csv "spec/data/logistic.csv"
+      #   glm  = Statsample::GLM.compute data_set, "y", :logistic, {constant: 1}
+      #   glm.coefficients as_a = :hash
+      #     # =>
+      #     # {:x1=>-0.3124937545689041, :x2=>2.286713333462646, :constant=>0.675603176233328}
+      #
       def coefficients as_a=:vector
         case as_a
         when :hash
