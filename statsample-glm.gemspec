@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'daru', '~> 0.1'
   spec.add_runtime_dependency 'statsample', '~> 2.0'
+  spec.add_runtime_dependency 'backports'
 
   spec.add_development_dependency 'bundler', '~> 1.10'
   spec.add_development_dependency 'rake'
@@ -37,5 +38,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rdoc', '~> 3.12'
   spec.add_development_dependency 'pry', '~> 0.10'
   spec.add_development_dependency 'pry-byebug'
-  spec.add_development_dependency 'nmatrix', '~> 0.2.1'
 end
