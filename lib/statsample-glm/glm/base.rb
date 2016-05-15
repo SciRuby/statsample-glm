@@ -36,7 +36,7 @@ module Statsample
       #
       # @param [Symbol] as_a Specifies the form of output
       #
-      # @return [Vector, Hash] coefficients of the model
+      # @return [Vector, Hash, Array] coefficients of the model
       #
       # @example
       #   require 'statsample-glm'
@@ -63,6 +63,23 @@ module Statsample
         end
       end
 
+      # Returns the standard error obtained using the model
+      #
+      # @param [Symbol] as_a Specifies the form of output
+      #
+      # @return [Vector, Hash, Array] standard error
+      #
+      # @example
+      #   require 'statsample-glm'
+      #   data_set = Daru::DataFrame.from_csv "spec/data/logistic.csv"
+      #   glm  = Statsample::GLM.compute data_set, "y", :logistic, {constant: 1}
+      #   glm.standard_error
+      #     # #<Daru::Vector:25594060 @name = nil @metadata = {} @size = 3 >
+      #     #                                     nil
+      #     #                   0  0.4130813039878828
+      #     #                   1  0.7194644911927432
+      #     #                   2 0.40380565497038895
+      #
       def standard_error as_a=:vector  
         case as_a
         when :hash
@@ -88,6 +105,24 @@ module Statsample
         @regression.fitted_mean_values
       end
 
+      # Returns for every data point obtained using the model
+      #
+      # @return [Vector] all residuals in a vector
+      #
+      # @example
+      #   require 'statsample-glm'
+      #   data_set = Daru::DataFrame.from_csv "spec/data/logistic.csv"
+      #   glm  = Statsample::GLM.compute data_set, "y", :logistic, {constant: 1}
+      #   glm.residuals
+      #     # #<Daru::Vector:22263420 @name = y @metadata = {} @size = 50 >
+      #     #                                         y
+      #     #                   0 -0.18632025624516532
+      #     #                   1  -0.5146459448198846
+      #     #                   2     0.15916476717451
+      #     #                   3  -0.9241524337773334
+      #     #                   4   0.2281471136368174
+      #     #                 ...                  ...
+      #
       def residuals
         @regression.residuals
       end
