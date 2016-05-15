@@ -36,7 +36,7 @@ module Statsample
       #
       # @param [Symbol] as_a Specifies the form of output
       #
-      # @return [Array, Hash] coefficients of the model
+      # @return [Vector, Hash] coefficients of the model
       #
       # @example
       #   require 'statsample-glm'
