@@ -13,8 +13,8 @@ module Statsample
           
         set_default_opts_if_any
 
-        @data_set  = ds.dup(ds.vectors.to_a - [y])
         @dependent = ds[y]
+        @data_set = ds.delete_vector y
 
         if @opts[:constant]
           add_constant_vector @opts[:constant]
