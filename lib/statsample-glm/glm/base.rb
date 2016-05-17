@@ -63,7 +63,7 @@ module Statsample
         end
       end
 
-      # Returns the standard error obtained using the model
+      # Returns the standard errors for the coefficient estimates
       #
       # @param [Symbol] as_a Specifies the form of output
       #
