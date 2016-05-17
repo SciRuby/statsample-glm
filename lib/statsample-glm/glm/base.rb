@@ -101,6 +101,25 @@ module Statsample
         @regression.iterations
       end
 
+      # Returns the values predicted by the coefficient estimates
+      #
+      # @return [Vector] vectors of predicted values
+      #
+      # @example
+      #   require 'statsample-glm'
+      #   data_set = Daru::DataFrame.from_csv "spec/data/logistic.csv"
+      #   glm  = Statsample::GLM.compute data_set, "y", :logistic, constant: 1
+      #   glm.fitted_mean_values
+      #     # => 
+      #     # #<Daru::Vector:27008600 @name = nil @metadata = {} @size = 50 >
+      #     #                                       nil
+      #     #                   0  0.18632025624516532
+      #     #                   1   0.5146459448198846
+      #     #                   2     0.84083523282549
+      #     #                   3   0.9241524337773334
+      #     #                   4   0.7718528863631826
+      #     #                 ...                  ...
+      #
       def fitted_mean_values
         @regression.fitted_mean_values
       end
