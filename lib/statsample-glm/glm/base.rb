@@ -127,6 +127,17 @@ module Statsample
         @regression.residuals
       end
 
+      # Returns the degrees of freedom value.
+      #
+      # @return [Integer] the degrees of freedom
+      #
+      # @example
+      #   require 'statsample-glm'
+      #   data_set = Daru::DataFrame.from_csv "spec/data/logistic.csv"
+      #   glm  = Statsample::GLM.compute data_set, "y", :logistic, constant: 1
+      #   glm.degree_of_freedom
+      #     # => 47
+      #
       def degree_of_freedom
         @regression.degree_of_freedom
       end
