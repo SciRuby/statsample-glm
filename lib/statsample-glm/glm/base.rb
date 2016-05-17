@@ -25,11 +25,9 @@ module Statsample
         algorithm = @opts[:algorithm].upcase
         method    = @opts[:method].capitalize
 
-        # TODO: Remove this const_get jugaad after 1.9.3 support is removed.
-
-        @regression = Kernel.const_get("Statsample").const_get("GLM")
-                            .const_get("#{algorithm}").const_get("#{method}")
-                            .new(@data_set, @dependent, @opts)
+        @regression = ['Statsample', 'GLM', algorithm, method]
+                      .reduce(Module, :const_get)
+                      .new @data_set, @dependent, @opts
       end
 
       # Returns the coefficients of trained model
