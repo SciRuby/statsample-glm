@@ -105,7 +105,7 @@ module Statsample
         @regression.fitted_mean_values
       end
 
-      # Returns for every data point obtained using the model
+      # Returns the residual for every data point
       #
       # @return [Vector] all residuals in a vector
       #
