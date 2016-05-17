@@ -131,6 +131,18 @@ module Statsample
         @regression.degree_of_freedom
       end
 
+      # Returns the optimal value of the log-likelihood function when using MLE algorithm.
+      # The optimal value is the value of the log-likelihood function at the MLE solution.
+      #
+      # @return [Numeric] the optimal value of log-likelihood function
+      #
+      # @example
+      #   require 'statsample-glm'
+      #   data_set = Daru::DataFrame.from_csv "spec/data/logistic.csv"
+      #   glm  = Statsample::GLM.compute data_set, "y", :logistic, constant: 1, algorithm: :mle
+      #   glm.log_likelihood
+      #     # => -21.4752278175261
+      #
       def log_likelihood
         @regression.log_likelihood if @opts[:algorithm] == :mle
       end
