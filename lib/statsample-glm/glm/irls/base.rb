@@ -3,8 +3,8 @@ module Statsample
     module IRLS
       class Base
 
-        attr_reader :coefficients, :standard_error, :iterations, 
-          :fitted_mean_values, :residuals, :degree_of_freedom
+        attr_reader :coefficients, :standard_errors, :iterations, 
+          :fitted_mean_values, :residuals, :degrees_of_freedom
 
         def initialize data_set, dependent, opts={}
           @data_set  = data_set.to_matrix
@@ -61,13 +61,13 @@ module Statsample
 
           @coefficients       = create_vector(b.column_vectors[0])
           @iterations         = max_iter
-          @standard_error     = create_vector(hessian(@data_set,b).inverse
+          @standard_errors     = create_vector(hessian(@data_set,b).inverse
                                                                   .diagonal
                                                                   .map{ |x| -x}
                                                                   .map{ |y| Math.sqrt(y) })
           @fitted_mean_values = create_vector measurement(@data_set,b).to_a.flatten
           @residuals          = @dependent - @fitted_mean_values
-          @degree_of_freedom  = @dependent.count - @data_set.column_size
+          @degrees_of_freedom  = @dependent.count - @data_set.column_size
         end
 
         def create_vector arr

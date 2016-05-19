@@ -62,6 +62,7 @@ module Statsample
         end
       end
 
+<<<<<<< 17bc3c74db1b3d24167236308c24e798362e66fc
       # Returns the standard errors for the coefficient estimates
       #
       # @param [Symbol] as_a Specifies the form of output
@@ -80,24 +81,27 @@ module Statsample
       #     #                   2 0.40380565497038895
       #
       def standard_error as_a=:vector  
+=======
+      def standard_errors as_a=:vector  
+>>>>>>> update all instances of aliases
         case as_a
         when :hash
           se = {}
           @data_set.vectors.to_a.each_with_index do |f,i|
-            se[f.to_sym] = @regression.standard_error[i]
+            se[f.to_sym] = @regression.standard_errors[i]
           end
           se
         when :array
-          @regression.standard_error.to_a
+          @regression.standard_errors.to_a
         when :vector
-          @regression.standard_error
+          @regression.standard_errors
         else
           raise ArgumentError, "as_a has to be one of :array, :hash, or :vector"
         end
       end
       
       # standard_error will be removed soon
-      alias :standard_errors :standard_error
+      alias :standard_error :standard_errors
 
       def iterations
         @regression.iterations
@@ -159,12 +163,12 @@ module Statsample
       #   glm.degree_of_freedom
       #     # => 47
       #
-      def degree_of_freedom
+      def degrees_of_freedom
         @regression.degree_of_freedom
       end
-      
-      # degree_of_freedom will be removed soon
-      alias :degrees_of_freedom :degree_of_freedom
+
+      # degrees_of_freedom will be removed soon
+      alias :degree_of_freedom :degrees_of_freedom
 
       # Returns the optimal value of the log-likelihood function when using MLE algorithm.
       # The optimal value is the value of the log-likelihood function at the MLE solution.

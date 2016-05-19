@@ -4,7 +4,7 @@ module Statsample
     module MLE
       class Base
           attr_reader :coefficients, :iterations, 
-            :fitted_mean_values, :residuals, :degree_of_freedom,
+            :fitted_mean_values, :residuals, :degrees_of_freedom,
             :log_likelihood
   
         MIN_DIFF_PARAMETERS=1e-2
@@ -27,7 +27,7 @@ module Statsample
           @log_likelihood = _log_likelihood x, y, @coefficients
           @fitted_mean_values = create_vector measurement(x, @coefficients).to_a.flatten
           @residuals = @dependent - @fitted_mean_values
-          @degree_of_freedom  = @dependent.count - x.column_size
+          @degrees_of_freedom  = @dependent.count - x.column_size
 
           # This jugad is done because the last vector index for Normal is sigma^2
           # which we dont want to return to the user.
@@ -35,7 +35,7 @@ module Statsample
             @coefficients.to_a.flatten[0..-2] : @coefficients.to_a.flatten)
         end
 
-        def standard_error
+        def standard_errors
           out = []
 
           @data_set.vectors.to_a.each_index do |i|

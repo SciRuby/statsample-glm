@@ -54,7 +54,7 @@ describe Statsample::GLM::Logistic do
     end
 
     it "reports correct standard deviations as a Daru::Vector" do
-      expect_similar_vector(@glm.standard_error, [0.4390, 0.4270, 0.3819,1.9045], 0.001)
+      expect_similar_vector(@glm.standard_errors, [0.4390, 0.4270, 0.3819,1.9045], 0.001)
     end
 
     it "reports correct regression coefficients as an array" do
@@ -62,7 +62,7 @@ describe Statsample::GLM::Logistic do
     end
 
     it "reports correct standard deviations as an array" do
-      expect_similar_array(@glm.standard_error(:array), [0.4390, 0.4270, 0.3819,1.9045], 0.001)
+      expect_similar_array(@glm.standard_errors(:array), [0.4390, 0.4270, 0.3819,1.9045], 0.001)
     end
 
     it "reports correct regression coefficients as a hash" do
@@ -71,7 +71,7 @@ describe Statsample::GLM::Logistic do
     end
 
     it "reports correct standard deviations as a hash" do
-      expect_similar_hash(@glm.standard_error(:hash), {:a => 0.4390, :b => 0.4270, :c => 0.3819,
+      expect_similar_hash(@glm.standard_errors(:hash), {:a => 0.4390, :b => 0.4270, :c => 0.3819,
                                                        :constant => 1.9045}, 0.001)
     end
 
