@@ -101,7 +101,7 @@ module Statsample
         @regression.iterations
       end
 
-      # Returns the values predicted by the coefficient estimates
+      # Returns the values predicted by the model
       #
       # @return [Vector] vectors of predicted values
       #
