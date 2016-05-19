@@ -95,6 +95,9 @@ module Statsample
           raise ArgumentError, "as_a has to be one of :array, :hash, or :vector"
         end
       end
+      
+      # standard_error will be removed soon
+      alias :standard_errors :standard_error
 
       def iterations
         @regression.iterations
@@ -159,6 +162,9 @@ module Statsample
       def degree_of_freedom
         @regression.degree_of_freedom
       end
+      
+      # degree_of_freedom will be removed soon
+      alias :degrees_of_freedom :degree_of_freedom
 
       # Returns the optimal value of the log-likelihood function when using MLE algorithm.
       # The optimal value is the value of the log-likelihood function at the MLE solution.
