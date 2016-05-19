@@ -25,10 +25,11 @@ module Statsample
         algorithm = @opts[:algorithm].upcase
         method    = @opts[:method].capitalize
 
-        @regression = ['Statsample', 'GLM', algorithm, method]
-                      .reduce(Module, :const_get)
-                      .new @data_set, @dependent, @opts
+        @regression = Object.const_get(
+                      "Statsample::GLM::#{algorithm}::#{method}"
+                      ).new @data_set, @dependent, @opts
       end
+
 
       # Returns the coefficients of trained model
       #
