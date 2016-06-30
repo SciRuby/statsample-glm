@@ -7,6 +7,7 @@ require 'statsample-glm/glm/mle/normal'
 module Statsample
   module GLM
     class Base
+      extend Gem::Deprecate
 
       def initialize ds, y, opts={}
         @opts   = opts
@@ -103,6 +104,8 @@ module Statsample
       # standard_error will be removed soon
       alias :standard_error :standard_errors
 
+      deprecate :standard_error, :standard_errors, 2017, 1
+
       def iterations
         @regression.iterations
       end
@@ -169,6 +172,7 @@ module Statsample
 
       # degrees_of_freedom will be removed soon
       alias :degree_of_freedom :degrees_of_freedom
+      deprecate :degree_of_freedom, :degrees_of_freedom, 2017, 1
 
       # Returns the optimal value of the log-likelihood function when using MLE algorithm.
       # The optimal value is the value of the log-likelihood function at the MLE solution.
