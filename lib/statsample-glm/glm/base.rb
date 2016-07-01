@@ -63,7 +63,6 @@ module Statsample
         end
       end
 
-<<<<<<< 17bc3c74db1b3d24167236308c24e798362e66fc
       # Returns the standard errors for the coefficient estimates
       #
       # @param [Symbol] as_a Specifies the form of output
@@ -81,10 +80,7 @@ module Statsample
       #     #                   1  0.7194644911927432
       #     #                   2 0.40380565497038895
       #
-      def standard_error as_a=:vector  
-=======
       def standard_errors as_a=:vector  
->>>>>>> update all instances of aliases
         case as_a
         when :hash
           se = {}
@@ -103,7 +99,6 @@ module Statsample
       
       # standard_error will be removed soon
       alias :standard_error :standard_errors
-
       deprecate :standard_error, :standard_errors, 2017, 1
 
       def iterations
