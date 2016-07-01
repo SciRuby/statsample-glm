@@ -27,10 +27,9 @@ module Statsample
     def self.compute(data_set, dependent_column, method, opts={})
       opts[:method] = method
 
-      # TODO: Remove this const_get jugaad after 1.9.3 support is removed.
-
-      Kernel.const_get("Statsample").const_get("GLM").const_get("#{method.capitalize}").new data_set, 
-        dependent_column, opts
+      Kernel.const_get(
+        "Statsample::GLM::#{method.capitalize}"
+      ).new data_set, dependent_column, opts
     end
   end
 end
