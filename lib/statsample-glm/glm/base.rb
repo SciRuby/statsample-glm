@@ -73,7 +73,7 @@ module Statsample
       #   require 'statsample-glm'
       #   data_set = Daru::DataFrame.from_csv "spec/data/logistic.csv"
       #   glm  = Statsample::GLM.compute data_set, "y", :logistic, {constant: 1}
-      #   glm.standard_error
+      #   glm.standard_errors
       #     # #<Daru::Vector:25594060 @name = nil @metadata = {} @size = 3 >
       #     #                                     nil
       #     #                   0  0.4130813039878828
@@ -158,11 +158,11 @@ module Statsample
       #   require 'statsample-glm'
       #   data_set = Daru::DataFrame.from_csv "spec/data/logistic.csv"
       #   glm  = Statsample::GLM.compute data_set, "y", :logistic, constant: 1
-      #   glm.degree_of_freedom
+      #   glm.degrees_of_freedom
       #     # => 47
       #
       def degrees_of_freedom
-        @regression.degree_of_freedom
+        @regression.degrees_of_freedom
       end
 
       # degrees_of_freedom will be removed soon
