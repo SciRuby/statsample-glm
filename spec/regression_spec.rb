@@ -1,4 +1,4 @@
-require 'rspec_helper.rb'
+require 'spec_helper.rb'
 
 describe Statsample::GLM::Regression do
   let(:df) { Daru::DataFrame.from_csv 'spec/data/df.csv' }
