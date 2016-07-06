@@ -1,0 +1,4 @@
+AllCops:
+  Include:
+    - 'lib/statsample-glm/glm/formula.rb'
+    - 'lib/statsample-glm/glm/regression.rb'
