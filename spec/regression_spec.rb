@@ -34,49 +34,109 @@ describe Statsample::GLM::Regression do
         ['a', 'e_B', 'e_C']) }
     end
 
-    context 'interaction of numerical with numerical' do
-      let(:model) { described_class.new 'y ~ a+a:b', :logistic }
-      subject { model.dataframe_for_regression }
-      
-      it { is_expected.to be_a Daru::DataFrame }
-      its(:'vectors.to_a') { is_expected.to eq(
-        ['a', 'a:b']) }      
+    context '2-way interaction' do
+      context 'interaction of numerical with numerical' do
+        context 'none reoccur' do
+          let(:model) { described_class.new 'y ~ a:b', :logistic }
+          subject { model.dataframe_for_regression }
+          
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:'vectors.to_a.sort') { is_expected.to eq(
+            ['a:b', 'constant'].sort) }
+          end
+        
+        context 'one reoccur' do
+          let(:model) { described_class.new 'y ~ a+a:b', :logistic }
+          subject { model.dataframe_for_regression }
+          
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:'vectors.to_a.sort') { is_expected.to eq(
+            ['a', 'a:b', 'constant'].sort) }          
+        end
+
+        context 'both reoccur' do
+          let(:model) { described_class.new 'y ~ a+a:b', :logistic }
+          subject { model.dataframe_for_regression }
+          
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:'vectors.to_a.sort') { is_expected.to eq(
+            ['a', 'a:b', 'b', 'constant'].sort) }          
+        end        
+      end
+  
+      context 'interaction of category with numerical' do
+        context 'none reoccur' do
+          let(:model) { described_class.new 'y ~ a:e', :logistic }
+          subject { model.dataframe_for_regression }
+          
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:'vectors.to_a.sort') { is_expected.to eq(
+            ['a:e_A', 'a:e_B', 'a:e_C', 'constant'].sort) }
+        end
+
+        context 'one reoccur' do
+          context 'numeric occur' do
+            let(:model) { described_class.new 'y ~ a+a:e', :logistic }
+            subject { model.dataframe_for_regression }
+            
+            it { is_expected.to be_a Daru::DataFrame }
+            its(:'vectors.to_a.sort') { is_expected.to eq(
+              ['a', 'a:e_B', 'a:e_C', 'constant'].sort) }
+          end
+
+          context 'category occur' do
+            let(:model) { described_class.new 'y ~ e+a:e', :logistic }
+            subject { model.dataframe_for_regression }
+            
+            it { is_expected.to be_a Daru::DataFrame }
+            its(:'vectors.to_a.sort') { is_expected.to eq(
+              ['e_B', 'e_C', 'a:e_A', 'a:e_B', 'a:e_C', 'constant'].sort) }
+          end  
+        end        
+        
+        context 'both reoccur' do
+          let(:model) { described_class.new 'y ~ a+a:e', :logistic }
+          subject { model.dataframe_for_regression }
+          
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:'vectors.to_a.sort') { is_expected.to eq(
+            ['e_B', 'e_C', 'a', 'a:e_B', 'a:e_C', 'constant'].sort) }
+        end
+      end
+  
+      context 'interaction of category with category' do
+        context 'none reoccur' do
+          let(:model) { described_class.new 'y ~ c:e', :logistic }
+          subject { model.dataframe_for_regression }
+          
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:'vectors.to_a') { is_expected.to eq(
+            ['e_B', 'e_C', 'c_yes:e_A', 'c_yes:e_B', 'c_yes:e_C', 'constant']
+            .sort) }
+        end
+
+        context 'one reoccur' do
+          let(:model) { described_class.new 'y ~ e+c:e', :logistic }
+          subject { model.dataframe_for_regression }
+          
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:'vectors.to_a') { is_expected.to eq(
+            ['e_B', 'e_C', 'c_yes:e_A', 'c_yes:e_B', 'c_yes:e_C', 'constant']
+            .sort) }
+        end
+
+        context 'both reoccur' do
+          let(:model) { described_class.new 'y ~ c:e', :logistic }
+          subject { model.dataframe_for_regression }
+          
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:'vectors.to_a') { is_expected.to eq(
+            ['c_yes', 'e_B', 'e_C', 'c_yes:e_B', 'c_yes:e_C', 'constant']
+            .sort) }
+        end        
+      end
     end
-
-    context 'interaction of category with numerical' do
-      let(:model) { described_class.new 'y ~ a+a:e', :logistic }
-      subject { model.dataframe_for_regression }
-      
-      it { is_expected.to be_a Daru::DataFrame }
-      its(:'vectors.to_a') { is_expected.to eq(
-        ['a', 'a:e_B', 'a:e_C']) }      
-    end
-
-    # context 'interaction of category with category' do
-    #   let(:model) { described_class.new 'y ~ a+c:e', :logistic }
-    #   subject { model.dataframe_for_regression }
-      
-    #   it { is_expected.to be_a Daru::DataFrame }
-    #   its(:'vectors.to_a') { is_expected.to eq(
-    #     ['a', 'c_no:e_B', 'c_yes:e_B', 'c_no:e_C', 'c_yes:e_C']) }      
-    # end
-
-    # context 'interaction with variable repeated' do
-    #   let(:model) { described_class.new 'y ~ c+c:e', :logistic }
-    #   subject { model.dataframe_for_regression }
-      
-    #   it { is_expected.to be_a Daru::DataFrame }
-    #   its(:'vectors.to_a') { is_expected.to eq }      
-    # end
     
-    # context 'interaction with both variables repeated' do
-    #   let(:model) { described_class.new 'y ~ b+e+b:e', :logistic }
-    #   subject { model.dataframe_for_regression }
-      
-    #   it { is_expected.to be_a Daru::DataFrame }
-    #   its(:'vectors.to_a') { is_expected.to eq } 
-    # end
-    
-    # TODO: Identify more corner cases
+    # TODO: Three way interaction
   end
 end
