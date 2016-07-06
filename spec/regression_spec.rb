@@ -4,25 +4,29 @@ describe Statsample::GLM::Regression do
   let(:df) { Daru::DataFrame.from_csv 'spec/data/df.csv' }
   before do
     df.to_category 'c', 'd', 'e'
-    df['c'].categories = ['yes', 'no']
+    df['c'].categories = ['no', 'yes']
+    df['d'].categories = ['female', 'male']
     df['e'].categories = ['A', 'B', 'C']
   end
 
-  context '#fit_model' do
-    context 'no interaction' do
-      let(:model) { described_class.new 'y ~ a+e', :logistic }
-      subject { model.fit_model }
-      
-      # TODO: Verify the result in a better way
-      it { is_expected.to eq Statsample::GLM::Logistic }
-      its(:coefficients, :hash) { is_expected.to eq({
-        :a=>-0.010812201208660738,
-        :e_B=>-0.3048323141638691,
-        :e_C=>0.7003828317120407,
-        :constant=>0.140561459002858
-      }) }
-    end
-  end
+  # context '#fit_model' do
+  #   let(:model) { described_class.new 'y ~ a + e + c:d + e:d', :logistic }
+  #   subject { model.fit_model }
+    
+  #   # TODO: Write this spec
+  #   it { is_expected.to eq Statsample::GLM::Logistic }
+  #   its(:coefficients, :hash) { is_expected.to eq({
+  #     contant: ,
+  #     e_B: ,
+  #     e_C: ,
+  #     d_male: ,
+  #     'c_yes:d_female': ,
+  #     'c_yes:d_male': ,
+  #     'e_B:d_male': ,
+  #     'e_C:d_male': ,
+  #     'a': 
+  #   }) }
+  # end
 
   context '#dataframe_for_regression' do
     context 'no interaction' do
@@ -30,8 +34,8 @@ describe Statsample::GLM::Regression do
       subject { model.dataframe_for_regression }
       
       it { is_expected.to be_a Daru::DataFrame }
-      its(:'vectors.to_a') { is_expected.to eq(
-        ['a', 'e_B', 'e_C']) }
+      its(:'vectors.to_a.sort') { is_expected.to eq(
+        ['a', 'e_B', 'e_C'].sort) }
     end
 
     context '2-way interaction' do
@@ -136,7 +140,17 @@ describe Statsample::GLM::Regression do
         end        
       end
     end
-    
+
+    context 'complex' do
+      let(:model) { described_class.new 'y ~ a + e + c:d + e:d', :logistic }
+      subject { model.dataframe_for_regression }
+      
+      it { is_expected.to be_a Daru::DataFrame }
+      its(:'vectors.to_a.sort') { is_expected.to eq(
+        ['contant', 'e_B', 'e_C', 'd_male', 'c_yes:d_female', 'c_yes:d_male',
+        'e_B:d_male', 'e_C:d_male', 'a'].sort
+      ) }
+    end    
     # TODO: Three way interaction
   end
 end
