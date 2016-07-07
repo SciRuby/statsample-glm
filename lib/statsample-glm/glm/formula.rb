@@ -1,6 +1,5 @@
 module Statsample
   module GLM
-    # TODO: For debugging purposes only. To be removed.
     attr_reader :tokens, :y
     class Formula
       def initialize formula
@@ -62,7 +61,6 @@ module Statsample
     end
 
     class Token
-      # TODO: Only for debugging. To be removed
       attr_reader :value, :full
       def initialize value, full=nil
         @value = value
