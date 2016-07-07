@@ -1,6 +1,16 @@
 require 'spec_helper.rb'
 
 describe Statsample::GLM::Formula do
+  context '#initialize' do
+    subject(:token) { described_class.new 'y ~ a+a:b+c:d' }
+    
+    it { is_expected.to eq Array }
+    its(:first) { is_expected.to eq Statsample::GLM::Token }
+    its(:size) { is_expected.to eq 3 }
+    its(:to_a) { is_expected.to eq ['a', 'a:b', 'c:d']
+      .map { |t| Statsample::GLM::Token.new t } }
+  end
+
   context '#parse_formula' do
     context 'no interaction' do
       let(:formula) { described_class.new 'y ~ a+b' }
