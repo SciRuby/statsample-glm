@@ -37,8 +37,7 @@ module Statsample
         tokens = token.expand
         result_values = result_so_far.map { |t| t.value }
         tokens = tokens.reject { |t| result_values.include? t.value } || []
-        p tokens
-        p contract_if_possible tokens
+        contract_if_possible tokens
       end
 
       def split_to_tokens formula
@@ -116,13 +115,16 @@ module Statsample
       end
 
       def to_s
-        if size == 1
+        case size
+        when 0
+          value
+        when 1
           if full == true
             value
           else
             value + '(-)'
           end
-        elsif size == 2
+        when 2
           a, b = interact_terms
           case full
           when [true, true]
