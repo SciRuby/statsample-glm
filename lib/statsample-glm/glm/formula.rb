@@ -40,7 +40,7 @@ module Statsample
       end
 
       def split_to_tokens formula
-        formula.gsub(/\s+/, '')
+        formula.gsub!(/\s+/, '')
         lhs_term, rhs = formula.split '~'
         rhs_terms = rhs.split '+'
         ([lhs_term] + rhs_terms).map { |t| Token.new t }
@@ -89,11 +89,13 @@ module Statsample
         if size > other.size
           other.add self
         elsif other.size == 2 &&
+          size == 1 &&
           other.interact_terms.last == value &&
           other.full.last == full &&
           other.full.first == false
           Token.new "#{other.interact_terms.first}:#{value}", [true, other.full.last]
-        elsif
+        elsif other.size == 2 &&
+          size == 1 &&
           other.interact_terms.first == value &&
           other.full.first == full &&
           other.full.last == false
@@ -144,6 +146,14 @@ module Statsample
           a, b = interact_terms
           [Token.new(a, full=false), Token.new(b, full=false),
            Token.new(a+':'+b, full=[false, false])]
+        end
+      end
+
+      def to_df df
+        if size == 1
+          df[value].contrast_code full
+        elsif size == 2
+          df.interact_code(*interact_terms, full)
         end
       end
 
