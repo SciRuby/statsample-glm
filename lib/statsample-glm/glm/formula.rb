@@ -34,8 +34,8 @@ module Statsample
       def add_non_redundant_elements token, result_so_far
         return [token] if token.value == 1
         tokens = token.expand
-        result_values = result_so_far.map { |t| t.value }
-        tokens = tokens.reject { |t| result_values.include? t.value } || []
+        result_so_far = result_so_far.map { |t| t.expand }.flatten.uniq
+        tokens = tokens - result_so_far
         contract_if_possible tokens
       end
 
@@ -110,6 +110,14 @@ module Statsample
           full == other.full
       end
 
+      def eql? other
+        self.==(other)
+      end
+
+      def hash
+        self.value.hash ^ self.full.hash
+      end
+
       def <=> other
         size <=> other.size
       end
@@ -140,7 +148,9 @@ module Statsample
       end
 
       def expand
-        if size == 1
+        if size == 0
+          [self]
+        elsif size == 1
           [Token.new(1), Token.new(value, false)]
         elsif size == 2
           a, b = interact_terms

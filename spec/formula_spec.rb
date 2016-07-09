@@ -47,5 +47,12 @@ describe Statsample::GLM::Formula do
         it { is_expected.to eq '1+a(-)+b(-)+a(-):b(-)' }
       end
     end
+
+    context 'complex cases' do
+      let(:formula) { described_class.new 'y ~ a+a:b+b:d' }
+      subject { formula.parse_formula :string }
+      
+      it { is_expected.to eq '1+a(-)+a:b(-)+b:d(-)' }
+    end
   end
 end
