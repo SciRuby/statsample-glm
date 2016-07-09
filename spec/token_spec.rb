@@ -36,10 +36,109 @@ describe Statsample::GLM::Token do
       df['c'].categories = ['no', 'yes']
       df['d'].categories = ['female', 'male']
       df['e'].categories = ['A', 'B', 'C']
+      df['d'].base_category = 'female'
     end
 
     context 'no interaction' do
+      context 'numerical' do
+        context 'full rank' do
+          let(:token) { Statsample::GLM::Token.new 'a', true }
+          subject { token.to_df df }
+          
+          it { is_expected.to be_a Daru::DataFrame }
+          it { expect(subject['a']).to eq df['a'] }
+        end
+  
+        context 'reduced rank' do
+          let(:token) { Statsample::GLM::Token.new 'a', false }
+          subject { token.to_df df }
+
+          it { is_expected.to be_a Daru::DataFrame }
+          it { expect(subject['a']).to eq df['a'] }          
+        end
+      end
+
+      context 'category' do
+        context 'full rank' do
+          let(:token) { Statsample::GLM::Token.new 'e', true }
+          subject { token.to_df df }
+          it { is_expected.to be_a Daru::
+          DataFrame }
+          its(:shape) { is_expected.to eq [14, 3] }
+          its(:'vectors.to_a') { is_expected.to eq %w(e_A e_B e_C) }
+        end
+  
+        context 'reduced rank' do
+          let(:token) { Statsample::GLM::Token.new 'e', false }
+          subject { token.to_df df }
+
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:shape) { is_expected.to eq [14, 2] }
+          its(:'vectors.to_a') { is_expected.to eq %w(e_B e_C) }
+        end
+      end      
+    end
+
+    context '2-way interaction' do
+      context 'numerical-numerical' do
+        let(:token) { Statsample::GLM::Token.new 'a:b', [true, false] }
+        subject { token.to_df df }
+
+        it { is_expected.to be_a Daru::DataFrame }
+        its(:shape) { is_expected.to eq [14, 1] }
+        its(:'vectors.to_a') { is_expected.to eq ['a:b'] }
+        it { expect(subject['a:b'].to_a).to eq (df['a']*df['b']).to_a }
+      end
       
+      context 'category-category' do
+        let(:token) { Statsample::GLM::Token.new 'c:d', [true, false] }
+        subject { token.to_df df }
+        it { is_expected.to be_a Daru::DataFrame }
+        its(:shape) { is_expected.to eq [14, 2] }
+        its(:'vectors.to_a') { is_expected.to eq ['c_no:d_male', 'c_yes:d_male'] }
+      end
+
+      context 'numerical-category' do
+        context 'full-full' do
+          let(:token) { Statsample::GLM::Token.new 'a:c', [true, true] }
+          subject { token.to_df df }
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:size) { is_expected.to [14, 2] }
+          its(:'vectors.to_a') { is_expected.to eq ['a:c_no', 'a:c_yes'] }
+          it { expect(subject['a:c_no']).to eq [] }
+          it { expect(subject['a:c_yes']).to eq [] }
+        end
+
+        context 'reduced-reduced' do
+          let(:token) { Statsample::GLM::Token.new 'a:c', [false, false] }
+          subject { token.to_df df }
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:size) { is_expected.to [14, 2] }
+          its(:'vectors.to_a') { is_expected.to eq ['a:c_yes'] }
+          it { expect(subject['a:c_no']).to eq [] }
+        end
+      end
+
+      context 'category-numerical' do
+        context 'full-full' do
+          let(:token) { Statsample::GLM::Token.new 'c:a', [true, true] }
+          subject { token.to_df df }
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:size) { is_expected.to [14, 1] }
+          its(:'vectors.to_a') { is_expected.to eq ['a:c_no', 'a:c_yes'] }
+          it { expect(subject['a:c_no']).to eq [] }
+          it { expect(subject['a:c_yes']).to eq [] }
+        end
+
+        context 'reduced-reduced' do
+          let(:token) { Statsample::GLM::Token.new 'c:a', [false, false] }
+          subject { token.to_df df }
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:size) { is_expected.to [14, 1] }
+          its(:'vectors.to_a') { is_expected.to eq ['ac_yes:a'] }
+          it { expect(subject['a:c_no']).to eq [] }
+        end
+      end      
     end
   end
 end

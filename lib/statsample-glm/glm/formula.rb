@@ -151,9 +151,32 @@ module Statsample
 
       def to_df df
         if size == 1
-          df[value].contrast_code full
+          if df[value].category?
+            # TODO: Message for me (lokeshh).
+            # To be removed and instead create an issue in Daru.
+            # Change base category automatically when reordering
+            # and replace full: true with true or full=true
+            df[value].contrast_code full: full
+          else
+            Daru::DataFrame.new({value => df[value].to_a})
+          end
         elsif size == 2
-          df.interact_code(*interact_terms, full)
+          case interact_terms.map { |t| df[t].category? }
+          when [true, true]
+            df.interact_code(interact_terms, full: full)
+          when [false, false]
+            Daru::DataFrame.new({
+              value => (df[interact_terms.first]*df[interact_terms.last]).to_a
+            })
+          # when [true, false]
+          #   df.contrast_code(
+          #     interact_terms.first, full.first
+          #   ) * df[interact_terms.last]
+          # when [false, true]
+          #   df.contrast_code(
+          #     interact_terms.first, full.first
+          #   ) * df[interact_terms.last]
+          end
         end
       end
 
