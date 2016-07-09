@@ -163,7 +163,7 @@ module Statsample
         elsif size == 2
           case interact_terms.map { |t| df[t].category? }
           when [true, true]
-            df.interact_code(interact_terms, full: full)
+            df.interact_code(interact_terms, full)
           when [false, false]
             Daru::DataFrame.new({
               value => (df[interact_terms.first]*df[interact_terms.last]).to_a

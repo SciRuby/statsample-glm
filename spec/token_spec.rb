@@ -91,11 +91,39 @@ describe Statsample::GLM::Token do
       end
       
       context 'category-category' do
-        let(:token) { Statsample::GLM::Token.new 'c:d', [true, false] }
-        subject { token.to_df df }
-        it { is_expected.to be_a Daru::DataFrame }
-        its(:shape) { is_expected.to eq [14, 2] }
-        its(:'vectors.to_a') { is_expected.to eq ['c_no:d_male', 'c_yes:d_male'] }
+        context 'full-full' do
+          let(:token) { Statsample::GLM::Token.new 'c:d', [true, true] }
+          subject { token.to_df df }
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:shape) { is_expected.to eq [14, 4] }
+          its(:'vectors.to_a') { is_expected.to eq(
+            ["c_no:d_female", "c_no:d_male", "c_yes:d_female", "c_yes:d_male"]
+          ) }
+        end
+
+        context 'full-reduced' do
+          let(:token) { Statsample::GLM::Token.new 'c:d', [true, false] }
+          subject { token.to_df df }
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:shape) { is_expected.to eq [14, 2] }
+          its(:'vectors.to_a') { is_expected.to eq ['c_no:d_male', 'c_yes:d_male'] }
+        end
+  
+        context 'reduced-full' do
+          let(:token) { Statsample::GLM::Token.new 'c:d', [false, true] }
+          subject { token.to_df df }
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:shape) { is_expected.to eq [14, 2] }
+          its(:'vectors.to_a') { is_expected.to eq ['c_yes:d_female', 'c_yes:d_male'] }
+        end
+
+        context 'reduced-reduced' do
+          let(:token) { Statsample::GLM::Token.new 'c:d', [false, false] }
+          subject { token.to_df df }
+          it { is_expected.to be_a Daru::DataFrame }
+          its(:shape) { is_expected.to eq [14, 1] }
+          its(:'vectors.to_a') { is_expected.to eq ['c_yes:d_male'] }
+        end
       end
 
       context 'numerical-category' do
