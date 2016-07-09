@@ -103,19 +103,22 @@ describe Statsample::GLM::Token do
           let(:token) { Statsample::GLM::Token.new 'a:c', [true, true] }
           subject { token.to_df df }
           it { is_expected.to be_a Daru::DataFrame }
-          its(:size) { is_expected.to [14, 2] }
+          its(:shape) { is_expected.to eq [14, 2] }
           its(:'vectors.to_a') { is_expected.to eq ['a:c_no', 'a:c_yes'] }
-          it { expect(subject['a:c_no']).to eq [] }
-          it { expect(subject['a:c_yes']).to eq [] }
+          it { expect(subject['a:c_no'].to_a).to eq(
+            [6, 0, 16, 14, 5, 11, 8, 0, 15, 11, 19, 17, 0, 10]) }
+          it { expect(subject['a:c_yes'].to_a).to eq(
+            [0, 18, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 12, 0]) }
         end
 
         context 'reduced-reduced' do
           let(:token) { Statsample::GLM::Token.new 'a:c', [false, false] }
           subject { token.to_df df }
           it { is_expected.to be_a Daru::DataFrame }
-          its(:size) { is_expected.to [14, 2] }
+          its(:shape) { is_expected.to eq [14, 1] }
           its(:'vectors.to_a') { is_expected.to eq ['a:c_yes'] }
-          it { expect(subject['a:c_no']).to eq [] }
+          it { expect(subject['a:c_yes'].to_a).to eq(
+            [0, 18, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 12, 0]) }
         end
       end
 
@@ -124,19 +127,22 @@ describe Statsample::GLM::Token do
           let(:token) { Statsample::GLM::Token.new 'c:a', [true, true] }
           subject { token.to_df df }
           it { is_expected.to be_a Daru::DataFrame }
-          its(:size) { is_expected.to [14, 1] }
-          its(:'vectors.to_a') { is_expected.to eq ['a:c_no', 'a:c_yes'] }
-          it { expect(subject['a:c_no']).to eq [] }
-          it { expect(subject['a:c_yes']).to eq [] }
+          its(:shape) { is_expected.to eq [14, 2] }
+          its(:'vectors.to_a') { is_expected.to eq ['c_no:a', 'c_yes:a'] }
+          it { expect(subject['c_no:a'].to_a).to eq(
+            [6, 0, 16, 14, 5, 11, 8, 0, 15, 11, 19, 17, 0, 10]) }
+          it { expect(subject['c_yes:a'].to_a).to eq(
+            [0, 18, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 12, 0]) }
         end
 
         context 'reduced-reduced' do
           let(:token) { Statsample::GLM::Token.new 'c:a', [false, false] }
           subject { token.to_df df }
           it { is_expected.to be_a Daru::DataFrame }
-          its(:size) { is_expected.to [14, 1] }
-          its(:'vectors.to_a') { is_expected.to eq ['ac_yes:a'] }
-          it { expect(subject['a:c_no']).to eq [] }
+          its(:shape) { is_expected.to eq [14, 1] }
+          its(:'vectors.to_a') { is_expected.to eq ['c_yes:a'] }
+          it { expect(subject['c_yes:a'].to_a).to eq(
+            [0, 18, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 12, 0]) }
         end
       end      
     end

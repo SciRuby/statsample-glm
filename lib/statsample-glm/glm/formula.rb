@@ -153,7 +153,7 @@ module Statsample
         if size == 1
           if df[value].category?
             # TODO: Message for me (lokeshh).
-            # To be removed and instead create an issue in Daru.
+            # To be removed and instead create an PR in Daru.
             # Change base category automatically when reordering
             # and replace full: true with true or full=true
             df[value].contrast_code full: full
@@ -168,14 +168,20 @@ module Statsample
             Daru::DataFrame.new({
               value => (df[interact_terms.first]*df[interact_terms.last]).to_a
             })
-          # when [true, false]
-          #   df.contrast_code(
-          #     interact_terms.first, full.first
-          #   ) * df[interact_terms.last]
-          # when [false, true]
-          #   df.contrast_code(
-          #     interact_terms.first, full.first
-          #   ) * df[interact_terms.last]
+          when [true, false]
+            a, b = interact_terms
+            Daru::DataFrame.new(
+              df[a].contrast_code(full: full.first)
+                .map { |dv| ["#{dv.name}:#{b}", (dv*df[b]).to_a] }
+                .to_h
+            )
+          when [false, true]
+            a, b = interact_terms
+            Daru::DataFrame.new(
+              df[b].contrast_code(full: full.last)
+                .map { |dv| ["#{a}:#{dv.name}", (dv*df[a]).to_a] }
+                .to_h
+            )
           end
         end
       end

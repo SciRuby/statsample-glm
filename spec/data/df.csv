@@ -6,10 +6,10 @@ y,a,b,c,d,e
 1,5,56.9,no,male,B
 0,11,58.7,no,female,B
 0,8,63.3,no,male,B
-1,11,70.4,no,male,A
+1,11,70.4,yes,male,A
 1,15,70.5,no,male,C
 0,11,59.2,no,male,B
 0,19,76.4,no,male,A
 0,17,71.7,no,male,B
-1,12,57.5,no,male,C
+1,12,57.5,yes,male,C
 1,10,61.1,no,female,B
