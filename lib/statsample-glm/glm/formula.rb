@@ -10,7 +10,7 @@ module Statsample
         @y, *@tokens = split_to_tokens(formula)
         @y = @y.value
         @tokens = @tokens.uniq.sort
-        add_contant_term_if_required
+        manage_contant_term
       end
 
       def parse_formula(form = :token)
@@ -29,9 +29,11 @@ module Statsample
 
       private
 
-      def add_contant_term_if_required
-        # TODO: Add support for constants
-        @tokens.unshift Token.new('1')
+      def manage_contant_term
+        @tokens.unshift Token.new('1') unless
+          @tokens.include?(Token.new('1')) ||
+          @tokens.include?(Token.new('0'))
+        @tokens.delete Token.new('0')
       end
 
       def add_non_redundant_elements(token, result_so_far)
@@ -104,6 +106,10 @@ module Statsample
             "#{value}:#{other.interact_terms.last}",
             [other.full.first, true]
           )
+
+        elsif value == '1' &&
+              other.size == 1
+          Token.new(other.value, true)
         end
       end
 
@@ -153,10 +159,6 @@ module Statsample
         case size
         when 1
           if df[value].category?
-            # TODO: Message for me (lokeshh).
-            # To be removed and instead create an PR in Daru.
-            # Change base category automatically when reordering
-            # and replace full: true with true or full=true
             df[value].contrast_code full: full
           else
             Daru::DataFrame.new value => df[value].to_a

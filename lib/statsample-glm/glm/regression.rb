@@ -11,7 +11,8 @@ module Statsample
 
       def df_for_regression
         tokens = @formula.parse_formula
-        df = tokens[1..-1].map { |t| t.to_df @df }.reduce(&:merge)
+        tokens.shift if tokens.first.value == '1'
+        df = tokens.map { |t| t.to_df @df }.reduce(&:merge)
         # TODO: To be removed after this bug is resolved
         # https://github.com/v0dro/daru/issues/183
         old_names = df.vectors.to_a
@@ -22,7 +23,12 @@ module Statsample
       end
 
       def fit_model
-        Statsample::GLM.compute df_for_regression, @formula.y, @method
+        Statsample::GLM.compute(
+          df_for_regression,
+          @formula.y,
+          @method,
+          constant: (1 if @formula.tokens.include? Token.new('1'))
+        )
       end
     end
   end

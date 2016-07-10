@@ -35,7 +35,7 @@ module Statsample
     end
 
     def self.fit_model(df, formula, method, opts={})
-      reg = Statsample::GLM::Regression.new df, formula, method, opts
+      reg = Statsample::GLM::Regression.new formula, df, method, opts
       reg.fit_model
     end
   end

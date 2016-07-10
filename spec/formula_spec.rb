@@ -54,5 +54,28 @@ describe Statsample::GLM::Formula do
       
       it { is_expected.to eq '1+a(-)+a:b(-)+b:d(-)' }
     end
+
+    context 'contant management' do
+      context 'add contant with 1' do
+        let(:formula) { described_class.new 'y ~ 1+a+b' }
+        subject { formula.parse_formula :string }
+        
+        it { is_expected.to eq '1+a(-)+b(-)' }
+      end
+
+      context 'add constant by default' do
+        let(:formula) { described_class.new 'y ~ a+b' }
+        subject { formula.parse_formula :string }
+        
+        it { is_expected.to eq '1+a(-)+b(-)' }        
+      end
+
+      context 'remove constant with 0' do
+        let(:formula) { described_class.new 'y ~ a+b+0' }
+        subject { formula.parse_formula :string }
+        
+        it { is_expected.to eq 'a+b(-)' }         
+      end
+    end
   end
 end
