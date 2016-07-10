@@ -1,4 +1,5 @@
 require 'spec_helper.rb'
+require 'formula_checker.rb'
 
 describe Statsample::GLM::Regression do
   let(:df) { Daru::DataFrame.from_csv 'spec/data/df.csv' }
@@ -30,12 +31,13 @@ describe Statsample::GLM::Regression do
 
   context '#df_for_regression' do
     context 'no interaction' do
-      let(:model) { described_class.new df, 'y ~ a+e', :logistic }
-      subject { model.df_for_regression }
+      # let(:model) { described_class.new df, 'y ~ a+e', :logistic }
+      # subject { model.df_for_regression }
       
-      it { is_expected.to be_a Daru::DataFrame }
-      its(:'vectors.to_a.sort') { is_expected.to eq(
-        ['a', 'e_B', 'e_C'].sort) }
+      # it { is_expected.to be_a Daru::DataFrame }
+      # its(:'vectors.to_a.sort') { is_expected.to eq(
+      #   ['a', 'e_B', 'e_C'].sort) }
+      include_context "formula checker", 'y~a:e' => %w[a e_B e_C].sort
     end
 
     context '2-way interaction' do

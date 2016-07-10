@@ -1,7 +1,8 @@
 module Statsample
   module GLM
+    # Class for performing regression
     class Regression
-      def initialize df, formula, method, opts={}
+      def initialize(df, formula, method, opts = {})
         @formula = Formula.new formula
         @df = df
         @method = method
