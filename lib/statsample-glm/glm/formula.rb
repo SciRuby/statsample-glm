@@ -10,7 +10,7 @@ module Statsample
         @y, *@tokens = split_to_tokens(formula)
         @y = @y.value
         @tokens = @tokens.uniq.sort
-        manage_contant_term
+        manage_constant_term
       end
 
       def parse_formula(form = :token)
@@ -29,7 +29,7 @@ module Statsample
 
       private
 
-      def manage_contant_term
+      def manage_constant_term
         @tokens.unshift Token.new('1') unless
           @tokens.include?(Token.new('1')) ||
           @tokens.include?(Token.new('0'))

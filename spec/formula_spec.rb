@@ -55,8 +55,8 @@ describe Statsample::GLM::Formula do
       it { is_expected.to eq '1+a(-)+a:b(-)+b:d(-)' }
     end
 
-    context 'contant management' do
-      context 'add contant with 1' do
+    context 'constant management' do
+      context 'add constant with 1' do
         let(:formula) { described_class.new 'y ~ 1+a+b' }
         subject { formula.parse_formula :string }
         
