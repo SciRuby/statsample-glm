@@ -1,9 +1,10 @@
 module Statsample
   module GLM
+    # To process formula language
     class Formula
       attr_reader :tokens, :y
 
-      def initialize formula
+      def initialize(formula)
         # @y store the LHS term that is name of vector to be predicted
         # @tokens store the RHS terms of the formula
         @y, *@tokens = split_to_tokens(formula)
@@ -12,7 +13,7 @@ module Statsample
         add_contant_term_if_required
       end
 
-      def parse_formula form=:token
+      def parse_formula(form = :token)
         tokens = @tokens.inject([]) do |acc, token|
           acc + add_non_redundant_elements(token, acc)
         end
@@ -20,7 +21,7 @@ module Statsample
         when :token
           tokens
         when :string
-          tokens.map { |i| i.to_s }.join '+'
+          tokens.join '+'
         else
           raise ArgumentError, 'Invalid form option'
         end
@@ -30,97 +31,94 @@ module Statsample
 
       def add_contant_term_if_required
         # TODO: Add support for constants
-        @tokens.unshift Token.new(1)
+        @tokens.unshift Token.new('1')
       end
 
-      def add_non_redundant_elements token, result_so_far
-        return [token] if token.value == 1
+      def add_non_redundant_elements(token, result_so_far)
+        return [token] if token.value == '1'
         tokens = token.expand
-        result_so_far = result_so_far.map { |t| t.expand }.flatten.uniq
-        tokens = tokens - result_so_far
+        result_so_far = result_so_far.flat_map(&:expand)
+        tokens -= result_so_far
         contract_if_possible tokens
       end
 
-      def split_to_tokens formula
+      def split_to_tokens(formula)
         formula.gsub!(/\s+/, '')
         lhs_term, rhs = formula.split '~'
         rhs_terms = rhs.split '+'
         ([lhs_term] + rhs_terms).map { |t| Token.new t }
       end
 
-      def contract_if_possible tokens
+      def contract_if_possible(tokens)
         tokens.combination(2).each do |a, b|
           result = a.add b
-          if result
-            tokens.delete a
-            tokens.delete b
-            tokens << result
-            return contract_if_possible tokens
-          end
+          next unless result
+          tokens.delete a
+          tokens.delete b
+          tokens << result
+          return contract_if_possible tokens
         end
         tokens.sort
       end
     end
 
+    # To encapsulate interaction as well as non-interaction terms
     class Token
-      attr_reader :value, :full
-      def initialize value, full=nil
-        @value = value
+      attr_reader :value, :full, :interact_terms
+
+      def initialize(value, full = nil)
+        @interact_terms = value.include?(':') ? value.split(':') : [value]
         @full = full.nil? ? guess_full : full
       end
 
-      def interact_terms
-        if value.include? ':'
-          value.split(':')
-        else
-          value
-        end
+      def value
+        interact_terms.join(':')
       end
 
       def size
-        if value == 1
-          0
-        else
-          value.split(':').size
-        end
+        value == '1' ? 0 : interact_terms.size
       end
 
-      def add other
+      def add(other)
         # ANYTHING + FACTOR- : ANYTHING = FACTOR : ANYTHING
         # ANYTHING + ANYTHING : FACTOR- = ANYTHING : FACTOR
         if size > other.size
           other.add self
+
         elsif other.size == 2 &&
-          size == 1 &&
-          other.interact_terms.last == value &&
-          other.full.last == full &&
-          other.full.first == false
-          Token.new "#{other.interact_terms.first}:#{value}", [true, other.full.last]
+              size == 1 &&
+              other.interact_terms.last == value &&
+              other.full.last == full &&
+              other.full.first == false
+          Token.new(
+            "#{other.interact_terms.first}:#{value}",
+            [true, other.full.last]
+          )
+
         elsif other.size == 2 &&
-          size == 1 &&
-          other.interact_terms.first == value &&
-          other.full.first == full &&
-          other.full.last == false
-          Token.new "#{value}:#{other.interact_terms.last}", [other.full.first, true]
-        else
-          nil
+              size == 1 &&
+              other.interact_terms.first == value &&
+              other.full.first == full &&
+              other.full.last == false
+          Token.new(
+            "#{value}:#{other.interact_terms.last}",
+            [other.full.first, true]
+          )
         end
       end
 
-      def == other
+      def ==(other)
         value == other.value &&
           full == other.full
       end
 
-      def eql? other
-        self.==(other)
-      end
+      alias eql? ==
 
       def hash
-        self.value.hash ^ self.full.hash
+        value.hash ^ full.hash
       end
 
-      def <=> other
+      def <=>(other)
         size <=> other.size
       end
 
@@ -129,40 +127,31 @@ module Statsample
         when 0
           value
         when 1
-          if full == true
-            value
-          else
-            value + '(-)'
-          end
+          full ? value : value + '(-)'
         when 2
-          a, b = interact_terms
-          case full
-          when [true, true]
-            a + ':' + b
-          when [false, true]
-            "#{a}(-):#{b}"
-          when [true, false]
-            "#{a}:#{b}(-)"
-          when [false, false]
-            "#{a}(-):#{b}(-)"
-          end
+          interact_terms
+            .zip(full)
+            .map { |t, f| f ? t : t + '(-)' }
+            .join ':'
         end
       end
 
       def expand
-        if size == 0
+        case size
+        when 0
           [self]
-        elsif size == 1
-          [Token.new(1), Token.new(value, false)]
-        elsif size == 2
+        when 1
+          [Token.new('1'), Token.new(value, false)]
+        when 2
           a, b = interact_terms
-          [Token.new(a, full=false), Token.new(b, full=false),
-           Token.new(a+':'+b, full=[false, false])]
+          [Token.new(a, false), Token.new(b, false),
+           Token.new(a + ':' + b, [false, false])]
         end
       end
 
-      def to_df df
-        if size == 1
+      def to_df(df)
+        case size
+        when 1
           if df[value].category?
             # TODO: Message for me (lokeshh).
             # To be removed and instead create an PR in Daru.
@@ -170,35 +159,38 @@ module Statsample
             # and replace full: true with true or full=true
             df[value].contrast_code full: full
           else
-            Daru::DataFrame.new({value => df[value].to_a})
+            Daru::DataFrame.new value => df[value].to_a
           end
-        elsif size == 2
-          case interact_terms.map { |t| df[t].category? }
-          when [true, true]
-            df.interact_code(interact_terms, full)
-          when [false, false]
-            Daru::DataFrame.new({
-              value => (df[interact_terms.first]*df[interact_terms.last]).to_a
-            })
-          when [true, false]
-            a, b = interact_terms
-            Daru::DataFrame.new(
-              df[a].contrast_code(full: full.first)
-                .map { |dv| ["#{dv.name}:#{b}", (dv*df[b]).to_a] }
-                .to_h
-            )
-          when [false, true]
-            a, b = interact_terms
-            Daru::DataFrame.new(
-              df[b].contrast_code(full: full.last)
-                .map { |dv| ["#{a}:#{dv.name}", (dv*df[a]).to_a] }
-                .to_h
-            )
-          end
+        when 2
+          to_df_when_interaction(df)
         end
       end
 
       private
+
+      def to_df_when_interaction(df)
+        case interact_terms.map { |t| df[t].category? }
+        when [true, true]
+          df.interact_code(interact_terms, full)
+        when [false, false]
+          Daru::DataFrame.new value => (df[interact_terms.first] *
+            df[interact_terms.last]).to_a
+        when [true, false]
+          a, b = interact_terms
+          Daru::DataFrame.new(
+            df[a].contrast_code(full: full.first)
+              .map { |dv| ["#{dv.name}:#{b}", (dv * df[b]).to_a] }
+              .to_h
+          )
+        when [false, true]
+          a, b = interact_terms
+          Daru::DataFrame.new(
+            df[b].contrast_code(full: full.last)
+              .map { |dv| ["#{a}:#{dv.name}", (dv * df[a]).to_a] }
+              .to_h
+          )
+        end
+      end
 
       def guess_full
         if size == 1

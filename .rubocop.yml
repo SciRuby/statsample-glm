@@ -2,3 +2,14 @@ AllCops:
   Include:
     - 'lib/statsample-glm/glm/formula.rb'
     - 'lib/statsample-glm/glm/regression.rb'
+  Exclude:
+    - 'lib/statsample-glm/glm/base.rb'
+    - 'lib/statsample-glm/glm/logistic.rb'
+    - 'lib/statsample-glm/glm/normal.rb'
+    - 'lib/statsample-glm/glm/poisson.rb'
+    - 'lib/statsample-glm/glm/probit.rb'
+    - 'lib/statsample-glm/glm/*/**'
+    - 'spec/*'
+    - 'lib/statsample-glm/version.rb'
+    - 'lib/statsample-glm/glm.rb'
+    - 'lib/statsample-glm.rb'
