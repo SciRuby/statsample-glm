@@ -33,5 +33,10 @@ module Statsample
         "Statsample::GLM::#{method.capitalize}"
       ).new data_set, dependent_column, opts
     end
+
+    def self.fit_model(df, formula, method, opts={})
+      reg = Statsample::GLM::Regression.new df, formula, method, opts
+      reg.fit_model
+    end
   end
 end

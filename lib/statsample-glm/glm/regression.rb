@@ -16,7 +16,12 @@ module Statsample
         old_names = df.vectors.to_a
         old_names.each { |n| df[n.to_s] = df[n] }
         df.delete_vectors(*old_names)
+        df[@formula.y] = @df[@formula.y]
         df
+      end
+
+      def fit_model
+        Statsample::GLM.compute df_for_regression, @formula.y, @method
       end
     end
   end

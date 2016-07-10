@@ -1,11 +1,13 @@
 module Statsample
   module GLM
-    attr_reader :tokens, :y
     class Formula
+      attr_reader :tokens, :y
+
       def initialize formula
         # @y store the LHS term that is name of vector to be predicted
         # @tokens store the RHS terms of the formula
         @y, *@tokens = split_to_tokens(formula)
+        @y = @y.value
         @tokens = @tokens.uniq.sort
         add_contant_term_if_required
       end
