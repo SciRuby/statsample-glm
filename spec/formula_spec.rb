@@ -1,80 +1,54 @@
 require 'spec_helper.rb'
+require 'parser_checker.rb'
 
 describe Statsample::GLM::Formula do
-  context '#initialize' do
-    subject(:token) { described_class.new 'y ~ a+a:b+c:d' }
-    
-    it { is_expected.to eq Statsample::GLM::Formula }
-    its(:size) { is_expected.to eq 3 }
-    its(:to_a) { is_expected.to eq ['a', 'a:b', 'c:d']
-      .map { |t| Statsample::GLM::Token.new t } }
-  end
-
   context '#parse_formula' do
     context 'no interaction' do
-      let(:formula) { described_class.new 'y ~ a+b' }
-      subject { formula.parse_formula :string }
-      
-      it { is_expected.to eq '1+a(-)+b(-)' }
+      include_context 'parser checker', 'y~a+b' =>
+        '1+a(-)+b(-)'
     end
 
     context '2-way interaction' do
       context 'none reoccur' do
-        let(:formula) { described_class.new 'y ~ c+a:b' }
-        subject { formula.parse_formula :string }
-        
-        it { is_expected.to eq '1+c(-)+b(-)+a(-):b' }
+        include_context 'parser checker', 'y~c+a:b' =>
+          '1+c(-)+b(-)+a(-):b'
       end
 
       context 'first reoccur' do
-        let(:formula) { described_class.new 'y ~ a+a:b' }
-        subject { formula.parse_formula :string }
-        
-        it { is_expected.to eq '1+a(-)+a:b(-)' }
+        include_context 'parser checker', 'y~a+a:b' =>
+          '1+a(-)+a:b(-)'
       end
 
       context 'second reoccur' do
-        let(:formula) { described_class.new 'y ~ b+a:b' }
-        subject { formula.parse_formula :string }
-        
-        it { is_expected.to eq '1+b(-)+a(-):b' }
+        include_context 'parser checker', 'y~b+a:b' =>
+          '1+b(-)+a(-):b'
       end 
 
       context 'both reoccur' do
-        let(:formula) { described_class.new 'y ~ a+b+a:b' }
-        subject { formula.parse_formula :string }
-        
-        it { is_expected.to eq '1+a(-)+b(-)+a(-):b(-)' }
+        include_context 'parser checker', 'y~a+b+a:b' =>
+          '1+a(-)+b(-)+a(-):b(-)'
       end
     end
 
     context 'complex cases' do
-      let(:formula) { described_class.new 'y ~ a+a:b+b:d' }
-      subject { formula.parse_formula :string }
-      
-      it { is_expected.to eq '1+a(-)+a:b(-)+b:d(-)' }
+      include_context 'parser checker', 'y~a+a:b+b:d' =>
+        '1+a(-)+a:b(-)+b:d(-)'
     end
 
     context 'constant management' do
       context 'add constant with 1' do
-        let(:formula) { described_class.new 'y ~ 1+a+b' }
-        subject { formula.parse_formula :string }
-        
-        it { is_expected.to eq '1+a(-)+b(-)' }
+        include_context 'parser checker', 'y~1+a+b' =>
+          '1+a(-)+b(-)'
       end
 
       context 'add constant by default' do
-        let(:formula) { described_class.new 'y ~ a+b' }
-        subject { formula.parse_formula :string }
-        
-        it { is_expected.to eq '1+a(-)+b(-)' }        
+        include_context 'parser checker', 'y~a+b' =>
+          '1+a(-)+b(-)'
       end
 
       context 'remove constant with 0' do
-        let(:formula) { described_class.new 'y ~ a+b+0' }
-        subject { formula.parse_formula :string }
-        
-        it { is_expected.to eq 'a+b(-)' }         
+        include_context 'parser checker', 'y~a+b+0' =>
+          'a+b(-)'
       end
     end
   end
