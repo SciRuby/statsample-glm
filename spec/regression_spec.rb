@@ -31,127 +31,72 @@ describe Statsample::GLM::Regression do
 
   context '#df_for_regression' do
     context 'no interaction' do
-      # let(:model) { described_class.new df, 'y ~ a+e', :logistic }
-      # subject { model.df_for_regression }
-      
-      # it { is_expected.to be_a Daru::DataFrame }
-      # its(:'vectors.to_a.sort') { is_expected.to eq(
-      #   ['a', 'e_B', 'e_C'].sort) }
       include_context "formula checker", 'y~a:e' => %w[a e_B e_C].sort
     end
 
     context '2-way interaction' do
       context 'interaction of numerical with numerical' do
         context 'none reoccur' do
-          let(:model) { described_class.new df, 'y ~ a:b', :logistic }
-          subject { model.df_for_regression }
-          
-          it { is_expected.to be_a Daru::DataFrame }
-          its(:'vectors.to_a.sort') { is_expected.to eq(
-            ['a:b'].sort) }
+          include_context 'formula checker', 'y~a:b' =>
+            %w[a:b]
           end
         
         context 'one reoccur' do
-          let(:model) { described_class.new df, 'y ~ a+a:b', :logistic }
-          subject { model.df_for_regression }
-          
-          it { is_expected.to be_a Daru::DataFrame }
-          its(:'vectors.to_a.sort') { is_expected.to eq(
-            ['a', 'a:b'].sort) }          
+          include_context 'formula checker', 'y~a+a:b' =>
+            %w[a a:b]
         end
 
         context 'both reoccur' do
-          let(:model) { described_class.new df, 'y ~ a+b+a:b', :logistic }
-          subject { model.df_for_regression }
-          
-          it { is_expected.to be_a Daru::DataFrame }
-          its(:'vectors.to_a.sort') { is_expected.to eq(
-            ['a', 'a:b', 'b'].sort) }          
+          include_context 'formula checker', 'y~a+b+a:b' =>
+            %w[a a:b b]
         end        
       end
   
       context 'interaction of category with numerical' do
         context 'none reoccur' do
-          let(:model) { described_class.new df, 'y ~ a:e', :logistic }
-          subject { model.df_for_regression }
-          
-          it { is_expected.to be_a Daru::DataFrame }
-          its(:'vectors.to_a.sort') { is_expected.to eq(
-            ['a:e_A', 'a:e_B', 'a:e_C'].sort) }
+          include_context 'formula checker', 'y~a:e' =>
+            %w[a:e_A a:e_B a:e_C]
         end
 
         context 'one reoccur' do
           context 'numeric occur' do
-            let(:model) { described_class.new df, 'y ~ a+a:e', :logistic }
-            subject { model.df_for_regression }
-            
-            it { is_expected.to be_a Daru::DataFrame }
-            its(:'vectors.to_a.sort') { is_expected.to eq(
-              ['a', 'a:e_B', 'a:e_C'].sort) }
+            include_context 'formula checker', 'y~a+a:e' =>
+              %w[a a:e_B a:e_C]
           end
 
           context 'category occur' do
-            let(:model) { described_class.new df, 'y ~ e+a:e', :logistic }
-            subject { model.df_for_regression }
-            
-            it { is_expected.to be_a Daru::DataFrame }
-            its(:'vectors.to_a.sort') { is_expected.to eq(
-              ['e_B', 'e_C', 'a:e_A', 'a:e_B', 'a:e_C'].sort) }
+            include_context 'formula checker', 'y~e+a:e' =>
+              %w[e_B e_C a:e_A a:e_B a:e_C]
           end  
         end        
         
         context 'both reoccur' do
-          let(:model) { described_class.new df, 'y ~ a+a:e', :logistic }
-          subject { model.df_for_regression }
-          
-          it { is_expected.to be_a Daru::DataFrame }
-          its(:'vectors.to_a.sort') { is_expected.to eq(
-            ['e_B', 'e_C', 'a', 'a:e_B', 'a:e_C'].sort) }
+          include_context 'formula checker', 'y~a+a:e' =>
+            %w[e_B e_C a a:e_B a:e_C]
         end
       end
   
       context 'interaction of category with category' do
         context 'none reoccur' do
-          let(:model) { described_class.new df, 'y ~ c:e', :logistic }
-          subject { model.df_for_regression }
-          
-          it { is_expected.to be_a Daru::DataFrame }
-          its(:'vectors.to_a.sort') { is_expected.to eq(
-            ['e_B', 'e_C', 'c_yes:e_A', 'c_yes:e_B', 'c_yes:e_C']
-            .sort) }
+          include_context 'formula checker', 'y~c:e' =>
+            %w[e_B e_C c_yes:e_A c_yes:e_B c_yes:e_C]
         end
 
         context 'one reoccur' do
-          let(:model) { described_class.new df, 'y ~ e+c:e', :logistic }
-          subject { model.df_for_regression }
-          
-          it { is_expected.to be_a Daru::DataFrame }
-          its(:'vectors.to_a.sort') { is_expected.to eq(
-            ['e_B', 'e_C', 'c_yes:e_A', 'c_yes:e_B', 'c_yes:e_C']
-            .sort) }
+          include_context 'formula checker', 'y~e+c:e' =>
+            %w[e_B e_C c_yes:e_A c_yes:e_B c_yes:e_C]
         end
 
         context 'both reoccur' do
-          let(:model) { described_class.new df, 'y ~ c+e+c:e', :logistic }
-          subject { model.df_for_regression }
-          
-          it { is_expected.to be_a Daru::DataFrame }
-          its(:'vectors.to_a.sort') { is_expected.to eq(
-            ['c_yes', 'e_B', 'e_C', 'c_yes:e_B', 'c_yes:e_C']
-            .sort) }
+          include_context 'formula checker', 'y~c+e+c:e' =>
+            %w[c_yes e_B e_C c_yes:e_B c_yes:e_C]
         end        
       end
     end
 
     context 'complex' do
-      let(:model) { described_class.new df, 'y ~ a + e + c:d + e:d', :logistic }
-      subject { model.df_for_regression }
-      
-      it { is_expected.to be_a Daru::DataFrame }
-      its(:'vectors.to_a.sort') { is_expected.to eq(
-        ['contant', 'e_B', 'e_C', 'd_male', 'c_yes:d_female', 'c_yes:d_male',
-        'e_B:d_male', 'e_C:d_male', 'a'].sort
-      ) }
+      include_context 'formula checker', 'y~a+e+c:d+e:d' =>
+        %w[e_B e_C d_male c_yes:d_female c_yes:d_male e_B:d_male e_C:d_male a]
     end    
     # TODO: Three way interaction
   end

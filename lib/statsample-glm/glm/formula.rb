@@ -45,7 +45,7 @@ module Statsample
       end
 
       def split_to_tokens(formula)
-        formula.gsub!(/\s+/, '')
+        formula = formula.gsub(/\s+/, '')
         lhs_term, rhs = formula.split '~'
         rhs_terms = rhs.split '+'
         ([lhs_term] + rhs_terms).map { |t| Token.new t }
