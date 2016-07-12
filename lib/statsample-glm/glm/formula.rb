@@ -1,33 +1,37 @@
 module Statsample
   module GLM
-    # To process formula language
-    class Formula
-      attr_reader :tokens, :y
+    # This class recognizes what terms are numeric
+    # and accordingly forms groups which are fed to Formula
+    # Once they are parsed with Formula, they are combined back
+    class FormulaWrapper
+      attr_reader :tokens, :y, :canonical_tokens
 
-      def initialize(formula)
+      def initialize(formula, df)
+        @df = df
         # @y store the LHS term that is name of vector to be predicted
         # @tokens store the RHS terms of the formula
         @y, *@tokens = split_to_tokens(formula)
-        @y = @y.value
         @tokens = @tokens.uniq.sort
         manage_constant_term
+        @canonical_tokens = parse_formula
       end
 
-      def parse_formula(form = :token)
-        tokens = @tokens.inject([]) do |acc, token|
-          acc + add_non_redundant_elements(token, acc)
-        end
-        case form
-        when :token
-          tokens
-        when :string
-          tokens.join '+'
-        else
-          raise ArgumentError, 'Invalid form option'
-        end
+      def canonical_to_s
+        canonical_tokens.join '+'
       end
 
-      private
+      def parse_formula
+        groups = split_to_groups
+        # TODO: (note for lokeshh)
+        # Right now x:c appears as c:x
+        groups.each { |k, v| groups[k] = strip_numeric v, k }
+        groups.each { |k, v| groups[k] = Formula.new(v).canonical_tokens }
+        p groups
+        groups.flat_map { |k, v| add_numeric v, k }
+      end
+
+      #TODO: Make it private. Commenting for debugging
+      # private
 
       def manage_constant_term
         @tokens.unshift Token.new('1') unless
@@ -36,12 +40,34 @@ module Statsample
         @tokens.delete Token.new('0')
       end
 
-      def add_non_redundant_elements(token, result_so_far)
-        return [token] if token.value == '1'
-        tokens = token.expand
-        result_so_far = result_so_far.flat_map(&:expand)
-        tokens -= result_so_far
-        contract_if_possible tokens
+      def split_to_groups
+        @tokens.group_by { |t| extract_numeric t }
+      end
+
+      def add_numeric tokens, numeric
+        tokens.map do |t|
+          terms = t.interact_terms + numeric
+          if terms == ['1']
+            Token.new('1')
+          else
+            terms = terms.reject { |i| i == '1' }
+            Token.new terms.join(':'), t.full
+          end
+        end
+      end
+
+      def strip_numeric tokens, numeric
+        tokens.map do |t|
+          terms = t.interact_terms - numeric
+          terms = ['1'] if terms.empty?
+          Token.new terms.join(':')
+        end
+      end
+
+      def extract_numeric token
+        terms = token.interact_terms
+        return [] if terms == ['1']
+        terms = terms.reject { |t| @df[t].category? }
       end
 
       def split_to_tokens(formula)
@@ -49,6 +75,36 @@ module Statsample
         lhs_term, rhs = formula.split '~'
         rhs_terms = rhs.split '+'
         ([lhs_term] + rhs_terms).map { |t| Token.new t }
+      end
+    end
+
+    # To process formula language
+    class Formula
+      attr_reader :tokens, :canonical_tokens
+
+      def initialize tokens
+        @tokens = tokens
+        @canonical_tokens = parse_formula
+      end
+
+      def canonical_to_s
+        canonical_tokens.join '+'
+      end
+
+      private
+
+      def parse_formula
+        @tokens.inject([]) do |acc, token|
+          acc + add_non_redundant_elements(token, acc)
+        end
+      end      
+
+      def add_non_redundant_elements(token, result_so_far)
+        return [token] if token.value == '1'
+        tokens = token.expand
+        result_so_far = result_so_far.flat_map(&:expand)
+        tokens -= result_so_far
+        contract_if_possible tokens
       end
 
       def contract_if_possible(tokens)
@@ -68,9 +124,9 @@ module Statsample
     class Token
       attr_reader :value, :full, :interact_terms
 
-      def initialize(value, full = nil)
+      def initialize(value, full = true)
         @interact_terms = value.include?(':') ? value.split(':') : [value]
-        @full = full.nil? ? guess_full : full
+        @full = coerce_full full
       end
 
       def value
@@ -78,6 +134,9 @@ module Statsample
       end
 
       def size
+        # TODO: Return size 1 for value '1' also
+        # CAn't do this at the moment because have to make
+        # changes in sorting first
         value == '1' ? 0 : interact_terms.size
       end
 
@@ -90,7 +149,7 @@ module Statsample
         elsif other.size == 2 &&
               size == 1 &&
               other.interact_terms.last == value &&
-              other.full.last == full &&
+              other.full.last == full.first &&
               other.full.first == false
           Token.new(
             "#{other.interact_terms.first}:#{value}",
@@ -100,7 +159,7 @@ module Statsample
         elsif other.size == 2 &&
               size == 1 &&
               other.interact_terms.first == value &&
-              other.full.first == full &&
+              other.full.first == full.first &&
               other.full.last == false
           Token.new(
             "#{value}:#{other.interact_terms.last}",
@@ -133,7 +192,7 @@ module Statsample
         when 0
           value
         when 1
-          full ? value : value + '(-)'
+          full.first ? value : value + '(-)'
         when 2
           interact_terms
             .zip(full)
@@ -159,7 +218,7 @@ module Statsample
         case size
         when 1
           if df[value].category?
-            df[value].contrast_code full: full
+            df[value].contrast_code full: full.first
           else
             Daru::DataFrame.new value => df[value].to_a
           end
@@ -169,6 +228,14 @@ module Statsample
       end
 
       private
+
+      def coerce_full value
+        if value.is_a? Array
+          value + Array.new((@interact_terms.size - value.size), true)
+        else
+          [value] * @interact_terms.size
+        end
+      end
 
       def to_df_when_interaction(df)
         case interact_terms.map { |t| df[t].category? }
