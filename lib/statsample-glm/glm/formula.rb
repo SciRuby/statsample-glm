@@ -26,7 +26,6 @@ module Statsample
         # Right now x:c appears as c:x
         groups.each { |k, v| groups[k] = strip_numeric v, k }
         groups.each { |k, v| groups[k] = Formula.new(v).canonical_tokens }
-        p groups
         groups.flat_map { |k, v| add_numeric v, k }
       end
 
@@ -91,7 +90,8 @@ module Statsample
         canonical_tokens.join '+'
       end
 
-      private
+      # private
+      # TODO: Uncomment private after debuggin
 
       def parse_formula
         @tokens.inject([]) do |acc, token|
@@ -209,7 +209,7 @@ module Statsample
           [Token.new('1'), Token.new(value, false)]
         when 2
           a, b = interact_terms
-          [Token.new(a, false), Token.new(b, false),
+          [Token.new('1'), Token.new(a, false), Token.new(b, false),
            Token.new(a + ':' + b, [false, false])]
         end
       end

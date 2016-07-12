@@ -5,9 +5,6 @@ describe Statsample::GLM::Regression do
   let(:df) { Daru::DataFrame.from_csv 'spec/data/df.csv' }
   before do
     df.to_category 'c', 'd', 'e'
-    df['c'].categories = ['no', 'yes']
-    df['d'].categories = ['female', 'male']
-    df['e'].categories = ['A', 'B', 'C']
   end
 
   # context '#fit_model' do
@@ -55,24 +52,24 @@ describe Statsample::GLM::Regression do
       context 'interaction of category with numerical' do
         context 'none reoccur' do
           include_context 'formula checker', 'y~a:e' =>
-            %w[a:e_A a:e_B a:e_C y]
+            %w[e_A:a e_B:a e_C:a y]
         end
 
         context 'one reoccur' do
           context 'numeric occur' do
             include_context 'formula checker', 'y~a+a:e' =>
-              %w[a a:e_B a:e_C y]
+              %w[a e_B:a e_C:a y]
           end
 
           context 'category occur' do
             include_context 'formula checker', 'y~e+a:e' =>
-              %w[e_B e_C a:e_A a:e_B a:e_C y]
+              %w[e_B e_C e_A:a e_B:a e_C:a y]
           end  
         end        
         
         context 'both reoccur' do
           include_context 'formula checker', 'y~a+a:e' =>
-            %w[e_B e_C a a:e_B a:e_C y]
+            %w[a e_B:a e_C:a y]
         end
       end
   
@@ -94,9 +91,28 @@ describe Statsample::GLM::Regression do
       end
     end
 
-    context 'complex' do
-      include_context 'formula checker', 'y~a+e+c:d+e:d' =>
-        %w[e_B e_C d_male c_yes:d_female c_yes:d_male e_B:d_male e_C:d_male a y]
+    context 'corner case' do
+      context 'example 1' do
+        include_context 'formula checker', 'y~d:a+d:e' =>
+          %w[e_B e_C d_male:e_A d_male:e_B d_male:e_C d_female:a d_male:a y]
+      end
+
+      context 'example 2' do
+        include_context 'formula checker', 'y~0+d:a+d:c' =>
+          %w[d_female:c_no d_male:c_no d_female:c_yes d_male:c_yes d_female:a d_male:a y]
+      end
+    end
+
+    context 'complex examples' do
+      context 'random example 1' do
+        include_context 'formula checker', 'y~a+e+c:d+e:d' =>
+          %w[e_B e_C d_male c_yes:d_female c_yes:d_male e_B:d_male e_C:d_male a y]
+      end
+      
+      context 'random example 2' do
+        include_context 'formula checker', 'y~e+b+c+d:e+b:e+a:e+0' =>
+          %w[e_A e_B e_C c_yes d_male:e_A d_male:e_B d_male:e_C b e_B:b e_C:b e_A:a e_B:a e_C:a y]
+      end
     end    
     # TODO: Three way interaction
   end

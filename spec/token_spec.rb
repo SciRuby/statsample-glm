@@ -8,7 +8,7 @@ describe Statsample::GLM::Token do
         
         it { is_expected.to be_a described_class }
         its(:to_s) { is_expected.to eq 'a' }
-        its(:full) { is_expected.to eq true }
+        its(:full) { is_expected.to eq [true] }
       end
 
       context 'not-full' do
@@ -16,7 +16,7 @@ describe Statsample::GLM::Token do
         
         it { is_expected.to be_a described_class }
         its(:to_s) { is_expected.to eq 'a(-)' }
-        its(:full) { is_expected.to eq false }
+        its(:full) { is_expected.to eq [false] }
       end
     end
 
@@ -42,7 +42,7 @@ describe Statsample::GLM::Token do
     context 'no interaction' do
       context 'numerical' do
         context 'full rank' do
-          let(:token) { Statsample::GLM::Token.new 'a', true }
+          let(:token) { Statsample::GLM::Token.new 'a', [true] }
           subject { token.to_df df }
           
           it { is_expected.to be_a Daru::DataFrame }
@@ -50,7 +50,7 @@ describe Statsample::GLM::Token do
         end
   
         context 'reduced rank' do
-          let(:token) { Statsample::GLM::Token.new 'a', false }
+          let(:token) { Statsample::GLM::Token.new 'a', [false] }
           subject { token.to_df df }
 
           it { is_expected.to be_a Daru::DataFrame }
@@ -60,7 +60,7 @@ describe Statsample::GLM::Token do
 
       context 'category' do
         context 'full rank' do
-          let(:token) { Statsample::GLM::Token.new 'e', true }
+          let(:token) { Statsample::GLM::Token.new 'e', [true] }
           subject { token.to_df df }
           it { is_expected.to be_a Daru::
           DataFrame }
@@ -69,7 +69,7 @@ describe Statsample::GLM::Token do
         end
   
         context 'reduced rank' do
-          let(:token) { Statsample::GLM::Token.new 'e', false }
+          let(:token) { Statsample::GLM::Token.new 'e', [false] }
           subject { token.to_df df }
 
           it { is_expected.to be_a Daru::DataFrame }
