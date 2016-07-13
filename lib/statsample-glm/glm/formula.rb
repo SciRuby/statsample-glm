@@ -29,8 +29,7 @@ module Statsample
         groups.flat_map { |k, v| add_numeric v, k }
       end
 
-      #TODO: Make it private. Commenting for debugging
-      # private
+      private
 
       def manage_constant_term
         @tokens.unshift Token.new('1') unless
@@ -43,7 +42,7 @@ module Statsample
         @tokens.group_by { |t| extract_numeric t }
       end
 
-      def add_numeric tokens, numeric
+      def add_numeric(tokens, numeric)
         tokens.map do |t|
           terms = t.interact_terms + numeric
           if terms == ['1']
@@ -55,7 +54,7 @@ module Statsample
         end
       end
 
-      def strip_numeric tokens, numeric
+      def strip_numeric(tokens, numeric)
         tokens.map do |t|
           terms = t.interact_terms - numeric
           terms = ['1'] if terms.empty?
@@ -63,10 +62,10 @@ module Statsample
         end
       end
 
-      def extract_numeric token
+      def extract_numeric(token)
         terms = token.interact_terms
         return [] if terms == ['1']
-        terms = terms.reject { |t| @df[t].category? }
+        terms.reject { |t| @df[t].category? }
       end
 
       def split_to_tokens(formula)
@@ -81,7 +80,7 @@ module Statsample
     class Formula
       attr_reader :tokens, :canonical_tokens
 
-      def initialize tokens
+      def initialize(tokens)
         @tokens = tokens
         @canonical_tokens = parse_formula
       end
@@ -97,7 +96,7 @@ module Statsample
         @tokens.inject([]) do |acc, token|
           acc + add_non_redundant_elements(token, acc)
         end
-      end      
+      end
 
       def add_non_redundant_elements(token, result_so_far)
         return [token] if token.value == '1'
@@ -188,17 +187,10 @@ module Statsample
       end
 
       def to_s
-        case size
-        when 0
-          value
-        when 1
-          full.first ? value : value + '(-)'
-        when 2
-          interact_terms
-            .zip(full)
-            .map { |t, f| f ? t : t + '(-)' }
-            .join ':'
-        end
+        interact_terms
+          .zip(full)
+          .map { |t, f| f ? t : t + '(-)' }
+          .join ':'
       end
 
       def expand
@@ -229,7 +221,7 @@ module Statsample
 
       private
 
-      def coerce_full value
+      def coerce_full(value)
         if value.is_a? Array
           value + Array.new((@interact_terms.size - value.size), true)
         else
@@ -258,14 +250,6 @@ module Statsample
               .map { |dv| ["#{a}:#{dv.name}", (dv * df[a]).to_a] }
               .to_h
           )
-        end
-      end
-
-      def guess_full
-        if size == 1
-          true
-        elsif size == 2
-          [true, true]
         end
       end
     end
