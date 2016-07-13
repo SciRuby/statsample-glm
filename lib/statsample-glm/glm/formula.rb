@@ -22,7 +22,7 @@ module Statsample
 
       def parse_formula
         groups = split_to_groups
-        # TODO: (note for lokeshh)
+        # TODO: An enhancement
         # Right now x:c appears as c:x
         groups.each { |k, v| groups[k] = strip_numeric v, k }
         groups.each { |k, v| groups[k] = Formula.new(v).canonical_tokens }
@@ -234,23 +234,35 @@ module Statsample
         when [true, true]
           df.interact_code(interact_terms, full)
         when [false, false]
-          Daru::DataFrame.new value => (df[interact_terms.first] *
-            df[interact_terms.last]).to_a
+          to_df_numeric_interact_with_numeric
         when [true, false]
-          a, b = interact_terms
-          Daru::DataFrame.new(
-            df[a].contrast_code(full: full.first)
-              .map { |dv| ["#{dv.name}:#{b}", (dv * df[b]).to_a] }
-              .to_h
-          )
+          to_df_category_interact_with_numeric
         when [false, true]
-          a, b = interact_terms
-          Daru::DataFrame.new(
-            df[b].contrast_code(full: full.last)
-              .map { |dv| ["#{a}:#{dv.name}", (dv * df[a]).to_a] }
-              .to_h
-          )
+          to_df_numeric_interact_with_category
         end
+      end
+
+      def to_df_numeric_interact_with_numeric
+        Daru::DataFrame.new value => (df[interact_terms.first] *
+          df[interact_terms.last]).to_a
+      end
+
+      def to_df_category_interact_with_numeric
+        a, b = interact_terms
+        Daru::DataFrame.new(
+          df[a].contrast_code(full: full.first)
+            .map { |dv| ["#{dv.name}:#{b}", (dv * df[b]).to_a] }
+            .to_h
+        )
+      end
+
+      def to_df_numeric_interact_with_category
+        a, b = interact_terms
+        Daru::DataFrame.new(
+          df[b].contrast_code(full: full.last)
+            .map { |dv| ["#{a}:#{dv.name}", (dv * df[a]).to_a] }
+            .to_h
+        )
       end
     end
   end
