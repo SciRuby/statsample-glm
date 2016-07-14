@@ -7,24 +7,48 @@ describe Statsample::GLM::Regression do
     df.to_category 'c', 'd', 'e'
   end
 
-  # context '#fit_model' do
-  #   let(:model) { described_class.new 'y ~ a + e + c:d + e:d', :logistic }
-  #   subject { model.fit_model }
+  context '#fit_model' do
+    context 'numerical' do
+      let(:model) { described_class.new 'y ~ a+b+a:b', df, :logistic }
+      let(:expected_hash) { {a: 1.14462, b: -0.04292, 'a:b': -0.03011,
+        constant: 4.73822 } }
+      subject { model.fit_model }
+
+      it { is_expected.to be_a Statsample::GLM::Logistic }
+      it 'verifies the coefficients' do
+        expected_hash.each do |k, v|
+          expect((subject.coefficients :hash)[k]).to be_within(0.00001).of(v)
+        end
+      end
+    end
     
-  #   # TODO: Write this spec
-  #   it { is_expected.to eq Statsample::GLM::Logistic }
-  #   its(:coefficients, :hash) { is_expected.to eq({
-  #     contant: ,
-  #     e_B: ,
-  #     e_C: ,
-  #     d_male: ,
-  #     'c_yes:d_female': ,
-  #     'c_yes:d_male': ,
-  #     'e_B:d_male': ,
-  #     'e_C:d_male': ,
-  #     'a': 
-  #   }) }
-  # end
+    context 'category' do
+      let(:model) { described_class.new 'y ~ 0+c', df, :logistic }
+      let(:expected_hash) { {c_no: -0.6931, c_yes: 1.3863 } }
+      subject { model.fit_model }
+
+      it { is_expected.to be_a Statsample::GLM::Logistic }
+      it 'verifies the coefficients' do
+        expected_hash.each do |k, v|
+          expect((subject.coefficients :hash)[k]).to be_within(0.0001).of(v)
+        end
+      end      
+    end
+    
+    context 'category and numeric' do
+      let(:model) { described_class.new 'y ~ a+b:c', df, :logistic }
+      let(:expected_hash) { {constant: 16.8145, a: -0.4315, 'c_no:b': -0.2344,
+        'c_yes:b': -0.2344} }
+      subject { model.fit_model }
+
+      it { is_expected.to be_a Statsample::GLM::Logistic }
+      it 'verifies the coefficients' do
+        expected_hash.each do |k, v|
+          expect((subject.coefficients :hash)[k]).to be_within(0.01).of(v)
+        end
+      end          
+    end
+  end
 
   context '#df_for_regression' do
     context 'with intercept' do

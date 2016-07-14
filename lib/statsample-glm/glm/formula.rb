@@ -234,20 +234,20 @@ module Statsample
         when [true, true]
           df.interact_code(interact_terms, full)
         when [false, false]
-          to_df_numeric_interact_with_numeric
+          to_df_numeric_interact_with_numeric df
         when [true, false]
-          to_df_category_interact_with_numeric
+          to_df_category_interact_with_numeric df
         when [false, true]
-          to_df_numeric_interact_with_category
+          to_df_numeric_interact_with_category df
         end
       end
 
-      def to_df_numeric_interact_with_numeric
+      def to_df_numeric_interact_with_numeric(df)
         Daru::DataFrame.new value => (df[interact_terms.first] *
           df[interact_terms.last]).to_a
       end
 
-      def to_df_category_interact_with_numeric
+      def to_df_category_interact_with_numeric(df)
         a, b = interact_terms
         Daru::DataFrame.new(
           df[a].contrast_code(full: full.first)
@@ -256,7 +256,7 @@ module Statsample
         )
       end
 
-      def to_df_numeric_interact_with_category
+      def to_df_numeric_interact_with_category(df)
         a, b = interact_terms
         Daru::DataFrame.new(
           df[b].contrast_code(full: full.last)

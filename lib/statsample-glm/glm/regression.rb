@@ -19,11 +19,12 @@ module Statsample
       end
 
       def fit_model
+        @opts[:constant] = 1 if @formula.tokens.include? Token.new('1')
         Statsample::GLM.compute(
           df_for_regression,
           @formula.y.value,
           @method,
-          constant: (1 if @formula.tokens.include? Token.new('1'))
+          @opts
         )
       end
     end
