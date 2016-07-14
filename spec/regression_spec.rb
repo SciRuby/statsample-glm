@@ -7,31 +7,27 @@ describe Statsample::GLM::Regression do
     df.to_category 'c', 'd', 'e'
   end
 
-  context '#fit_model' do
+  context '#model' do
     context 'numerical' do
       let(:model) { described_class.new 'y ~ a+b+a:b', df, :logistic }
       let(:expected_hash) { {a: 1.14462, b: -0.04292, 'a:b': -0.03011,
         constant: 4.73822 } }
-      subject { model.fit_model }
+      subject { model.model }
 
       it { is_expected.to be_a Statsample::GLM::Logistic }
       it 'verifies the coefficients' do
-        expected_hash.each do |k, v|
-          expect((subject.coefficients :hash)[k]).to be_within(0.00001).of(v)
-        end
+        expect_similar_hash(subject.coefficients(:hash), expected_hash, 1e-5)
       end
     end
     
     context 'category' do
       let(:model) { described_class.new 'y ~ 0+c', df, :logistic }
       let(:expected_hash) { {c_no: -0.6931, c_yes: 1.3863 } }
-      subject { model.fit_model }
+      subject { model.model }
 
       it { is_expected.to be_a Statsample::GLM::Logistic }
       it 'verifies the coefficients' do
-        expected_hash.each do |k, v|
-          expect((subject.coefficients :hash)[k]).to be_within(0.0001).of(v)
-        end
+        expect_similar_hash(subject.coefficients(:hash), expected_hash, 1e-4)
       end      
     end
     
@@ -39,15 +35,45 @@ describe Statsample::GLM::Regression do
       let(:model) { described_class.new 'y ~ a+b:c', df, :logistic }
       let(:expected_hash) { {constant: 16.8145, a: -0.4315, 'c_no:b': -0.2344,
         'c_yes:b': -0.2344} }
-      subject { model.fit_model }
+      subject { model.model }
 
       it { is_expected.to be_a Statsample::GLM::Logistic }
       it 'verifies the coefficients' do
-        expected_hash.each do |k, v|
-          expect((subject.coefficients :hash)[k]).to be_within(0.01).of(v)
-        end
+        expect_similar_hash(subject.coefficients(:hash), expected_hash, 1e-2)
       end          
     end
+  end
+  
+  context '#predict' do
+    context 'numerical' do
+      let(:model) { described_class.new 'y ~ a+b+a:b', df, :logistic }
+      let(:new_data) { df.head 3 }
+      subject { model.predict new_data }
+
+      it 'verifies the prediction' do
+        expect_similar_vector(subject, [0.0930, 0.9936, 0.9931], 1e-4)
+      end
+    end 
+
+    context 'category' do
+      let(:model) { described_class.new 'y ~ 0+c', df, :logistic }
+      let(:new_data) { df.head 3 }
+      subject { model.predict new_data }
+
+      it 'verifies the prediction' do
+        expect_similar_vector(subject, [0.3333, 0.8, 0.3333], 1e-4)
+      end  
+    end
+    
+    context 'category and numeric' do
+      let(:model) { described_class.new 'y ~ a+b:c', df, :logistic }
+      let(:new_data) { df.head 3 }
+      subject { model.predict new_data }
+
+      it 'verifies the prediction' do
+        expect_similar_vector(subject, [0.4183, 0.6961, 0.9993], 1e-4)
+      end 
+    end    
   end
 
   context '#df_for_regression' do

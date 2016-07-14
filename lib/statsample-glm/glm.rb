@@ -34,9 +34,10 @@ module Statsample
       ).new data_set, dependent_column, opts
     end
 
-    def self.fit_model(formula, df, method, opts={})
-      reg = Statsample::GLM::Regression.new formula, df, method, opts
-      reg.fit_model
-    end
+    # TODO: Decide whether to remove this or not.
+    # def self.fit_model(formula, df, method, opts={})
+    #   reg = Statsample::GLM::Regression.new formula, df, method, opts
+    #   reg.fit_model
+    # end
   end
 end
