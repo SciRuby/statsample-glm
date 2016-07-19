@@ -7,7 +7,6 @@ module Statsample
       # @param [String] formula formula for creating model
       # @param [Daru::DataFrame] df dataframe to be used for the fitting model
       # @param [Symbol] method method of regression. For example, :logistic, :normal, etc.
-      # @return [Statsample::GLM::Regression] regression object
       # @example
       #   df = Daru::DataFrame.from_csv 'spec/data/df.csv'
       #   df.to_category 'c', 'd', 'e'
