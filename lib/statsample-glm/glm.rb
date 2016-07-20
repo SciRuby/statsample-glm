@@ -2,7 +2,9 @@ require 'statsample-glm/glm/logistic'
 require 'statsample-glm/glm/probit'
 require 'statsample-glm/glm/poisson'
 require 'statsample-glm/glm/normal'
-require 'statsample-glm/glm/formula'
+require 'statsample-glm/glm/formula/formula.rb'
+require 'statsample-glm/glm/formula/wrapper.rb'
+require 'statsample-glm/glm/formula/token.rb'
 require 'statsample-glm/glm/regression'
 
 module Statsample

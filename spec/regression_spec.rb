@@ -1,5 +1,5 @@
 require 'spec_helper.rb'
-require 'formula_checker.rb'
+require 'shared_context/formula_checker.rb'
 
 describe Statsample::GLM::Regression do
   let(:df) { Daru::DataFrame.from_csv 'spec/data/df.csv' }

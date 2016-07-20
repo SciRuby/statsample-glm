@@ -134,9 +134,9 @@ describe Statsample::GLM::Token do
           its(:shape) { is_expected.to eq [14, 2] }
           its(:'vectors.to_a') { is_expected.to eq ['a:c_no', 'a:c_yes'] }
           it { expect(subject['a:c_no'].to_a).to eq(
-            [6, 0, 16, 14, 5, 11, 8, 0, 15, 11, 19, 17, 0, 10]) }
+            [6, 0, 6, 4, 0, 11, 8, 0, 0, 11, 0, 8, 2, 3]) }
           it { expect(subject['a:c_yes'].to_a).to eq(
-            [0, 18, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 12, 0]) }
+            [0, 18, 0, 0, 5, 0, 0, 21, 2, 0, 1, 0, 0, 0]) }
         end
 
         context 'reduced-reduced' do
@@ -146,7 +146,7 @@ describe Statsample::GLM::Token do
           its(:shape) { is_expected.to eq [14, 1] }
           its(:'vectors.to_a') { is_expected.to eq ['a:c_yes'] }
           it { expect(subject['a:c_yes'].to_a).to eq(
-            [0, 18, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 12, 0]) }
+            [0, 18, 0, 0, 5, 0, 0, 21, 2, 0, 1, 0, 0, 0]) }
         end
       end
 
@@ -158,9 +158,9 @@ describe Statsample::GLM::Token do
           its(:shape) { is_expected.to eq [14, 2] }
           its(:'vectors.to_a') { is_expected.to eq ['c_no:a', 'c_yes:a'] }
           it { expect(subject['c_no:a'].to_a).to eq(
-            [6, 0, 16, 14, 5, 11, 8, 0, 15, 11, 19, 17, 0, 10]) }
+            [6, 0, 6, 4, 0, 11, 8, 0, 0, 11, 0, 8, 2, 3]) }
           it { expect(subject['c_yes:a'].to_a).to eq(
-            [0, 18, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 12, 0]) }
+            [0, 18, 0, 0, 5, 0, 0, 21, 2, 0, 1, 0, 0, 0]) }
         end
 
         context 'reduced-reduced' do
@@ -170,7 +170,7 @@ describe Statsample::GLM::Token do
           its(:shape) { is_expected.to eq [14, 1] }
           its(:'vectors.to_a') { is_expected.to eq ['c_yes:a'] }
           it { expect(subject['c_yes:a'].to_a).to eq(
-            [0, 18, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 12, 0]) }
+            [0, 18, 0, 0, 5, 0, 0, 21, 2, 0, 1, 0, 0, 0]) }
         end
       end      
     end

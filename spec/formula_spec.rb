@@ -1,5 +1,5 @@
 require 'spec_helper.rb'
-require 'parser_checker.rb'
+require 'shared_context/parser_checker.rb'
 
 describe Statsample::GLM::Formula do
   context '#parse_formula' do
