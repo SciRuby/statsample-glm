@@ -31,8 +31,13 @@ module Statsample
         @canonical_tokens = non_redundant_tokens
       end
 
-      def reduce_formula
-        # TODO:
+      def reduce_formula expr
+        # First remove while spaces from exp
+        expr = expr.gsub ' ', ''
+        # Convert infix exp to postfix exp
+        postfix_expr = to_postfix expr
+        # Evaluate the expression
+        eval_postfix postfix_expr
       end
 
       # Returns canonical tokens in a readable form.
@@ -128,6 +133,78 @@ module Statsample
         rhs_terms = rhs.split '+'
         ([lhs_term] + rhs_terms).map { |t| Token(t) }
       end
+
+      # Helpers for reduce_formula
+      def priority_le? op1, op2
+        return false unless '*+/:'.include? op2
+        priority = {
+          '+' => 0,
+          '*' => 1,
+          '/' => 2,
+          ':' => 3    
+        }
+        priority[op1] <= priority[op2]
+      end
+      
+      # to_postfix 'a+b' gives 'ab+'
+      def to_postfix exp
+        res_exp = ''
+        stack = ['(']
+        exp << ')'
+        exp.each_char do |s|
+          if s =~ /[a-zA-Z]/
+            res_exp << s
+          elsif s == '('
+            stack.push '('
+          elsif '+*/:'.include? s
+            while priority_le? s, stack[-1]
+              res_exp << stack.pop
+            end
+            stack.push s
+          elsif s == ')'
+            until stack[-1] == '('
+              res_exp << stack.pop
+            end
+            stack.pop
+          end
+        end
+        res_exp
+      end
+      
+      # eval_postfix 'ab*' gives 'a+b+a:b'
+      def eval_postfix exp
+        # Scan through each symbol
+        stack = []
+        exp.each_char do |s|
+          if s =~ /[a-zA-Z]/
+            stack.push s
+          else
+            y, x = stack.pop, stack.pop
+            stack << apply_operation(s, x, y)
+          end
+        end
+        stack.pop
+      end
+      
+      def apply_interact_op x, y
+        x = x.split('+').to_a
+        y = y.split('+').to_a
+        terms = x.product(y)
+        terms.map! { |term| term[0]+':'+term[1] }
+        return terms.join '+'
+      end
+      
+      def apply_operation op, x, y
+        if op == '+'
+          return x + op + y
+        elsif op == ':'
+          return apply_interact_op x, y
+        elsif op == '*'
+          return x + '+' + y + '+' + apply_interact_op(x, y)
+        elsif op == '/'
+          return x + '+' + apply_interact_op(x, y)
+        end
+      end      
     end    
   end
 end

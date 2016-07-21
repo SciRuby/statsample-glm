@@ -29,7 +29,7 @@ describe Statsample::GLM::FormulaWrapper do
 
         context 'more than two terms' do
           include_context 'reduce formula', 'a*b*c' =>
-            'y ~ a+b+a:b+c+a:c+b:c+a:b:c'
+            'a+b+a:b+c+a:c+b:c+a:b:c'
         end
       end
 
