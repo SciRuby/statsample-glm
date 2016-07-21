@@ -1,3 +1,5 @@
+require_relative 'token'
+
 module Statsample
   module GLM
     # This class recognizes what terms are numeric
@@ -60,14 +62,22 @@ module Statsample
 
       private
 
+      TOKEN_0 = Token.new '0'
+      TOKEN_1 = Token.new '1'
+      def Token val, full=true
+        return TOKEN_0 if val == '0'
+        return TOKEN_1 if val == '1'
+        Token.new(val, full)
+      end
+
       # Removes intercept token if term '0' is found in the formula.
       # Intercept token remains if term '1' is found.
       # If neither term '0' nor term '1' is found then, intercept token is added.
       def manage_constant_term
-        @tokens.unshift Token.new('1') unless
-          @tokens.include?(Token.new('1')) ||
-          @tokens.include?(Token.new('0'))
-        @tokens.delete Token.new('0')
+        @tokens.unshift Token('1') unless
+          @tokens.include?(Token('1')) ||
+          @tokens.include?(Token('0'))
+        @tokens.delete Token('0')
       end
 
       # Groups the tokens to gropus based on the numerical terms
@@ -83,10 +93,10 @@ module Statsample
         tokens.map do |t|
           terms = t.interact_terms + numeric
           if terms == ['1']
-            Token.new('1')
+            Token('1')
           else
             terms = terms.reject { |i| i == '1' }
-            Token.new terms.join(':'), t.full
+            Token(terms.join(':'), t.full)
           end
         end
       end
@@ -99,7 +109,7 @@ module Statsample
         tokens.map do |t|
           terms = t.interact_terms - numeric
           terms = ['1'] if terms.empty?
-          Token.new terms.join(':')
+          Token(terms.join(':'))
         end
       end
 
@@ -116,7 +126,7 @@ module Statsample
         formula = formula.gsub(/\s+/, '')
         lhs_term, rhs = formula.split '~'
         rhs_terms = rhs.split '+'
-        ([lhs_term] + rhs_terms).map { |t| Token.new t }
+        ([lhs_term] + rhs_terms).map { |t| Token(t) }
       end
     end    
   end
