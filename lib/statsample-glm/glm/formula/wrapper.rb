@@ -34,6 +34,8 @@ module Statsample
       def reduce_formula expr
         # First remove while spaces from exp
         expr = expr.gsub(/\s+/, "")
+        # Split the expression to array
+        expr = expr.split /(?=[+*\/:()])|(?<=[+*\/:()])/
         # Convert infix exp to postfix exp
         postfix_expr = to_postfix expr
         # Evaluate the expression
@@ -142,17 +144,17 @@ module Statsample
       end
       
       # to_postfix 'a+b' gives 'ab+'
-      def to_postfix exp
-        res_exp = ''
+      def to_postfix expr
+        res_exp = []
         stack = ['(']
-        exp << ')'
-        exp.each_char do |s|
+        expr << ')'
+        expr.each do |s|
           if s =~ /[a-zA-Z]/
             res_exp << s
           elsif s == '('
             stack.push '('
           elsif Priority.include? s
-            while priority_le? s, stack[-1]
+            while priority_le? s, stack.last
               res_exp << stack.pop
             end
             stack.push s
@@ -170,7 +172,7 @@ module Statsample
       def eval_postfix expr
         # Scan through each symbol
         stack = []
-        expr.each_char do |s|
+        expr.each do |s|
           if s =~ /[a-zA-Z]/
             stack.push s
           else
