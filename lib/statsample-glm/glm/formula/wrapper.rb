@@ -73,7 +73,7 @@ module Statsample
       end
 
       def to_s
-        @y.to_s + '~' + @tokens.join('+')
+        "#{@y}~#{@tokens.join '+'}"
       end
 
       private
@@ -144,10 +144,10 @@ module Statsample
 
       # ==========BEGIN==========
       # Helpers for reduce_formula
-      Priority = %w(+ * / :)
+      PRIORITY = %w(+ * / :)
       def priority_le? op1, op2
-        return false unless Priority.include? op2
-        Priority.index(op1) <= Priority.index(op2)
+        return false unless PRIORITY.include? op2
+        PRIORITY.index(op1) <= PRIORITY.index(op2)
       end
       
       # to_postfix 'a+b' gives 'ab+'
@@ -158,7 +158,7 @@ module Statsample
         expr.each do |s|
           if s == '('
             stack.push '('
-          elsif Priority.include? s
+          elsif PRIORITY.include? s
             while priority_le? s, stack.last
               res_exp << stack.pop
             end
@@ -180,7 +180,7 @@ module Statsample
         # Scan through each symbol
         stack = []
         expr.each do |s|
-          if Priority.include? s
+          if PRIORITY.include? s
             y, x = stack.pop, stack.pop
             stack << apply_operation(s, x, y)
           else
