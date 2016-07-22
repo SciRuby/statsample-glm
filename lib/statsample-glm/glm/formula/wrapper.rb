@@ -25,15 +25,20 @@ module Statsample
         @df = df
         # @y store the LHS term that is name of vector to be predicted
         # @tokens store the RHS terms of the formula
-        @y, *@tokens = split_to_tokens(formula)
+        formula = formula.gsub(/\s+/, '')
+        lhs, rhs = split_lhs_rhs formula
+        @y = Token(lhs)
+        @tokens = split_to_tokens reduce_formula(rhs)
         @tokens = @tokens.uniq.sort
         manage_constant_term
         @canonical_tokens = non_redundant_tokens
       end
 
+      def split_lhs_rhs expr
+        expr.split '~'
+      end
+
       def reduce_formula expr
-        # First remove while spaces from exp
-        expr = expr.gsub(/\s+/, "")
         # Split the expression to array
         expr = expr.split /(?=[+*\/:()])|(?<=[+*\/:()])/
         # Convert infix exp to postfix exp
@@ -65,6 +70,10 @@ module Statsample
         groups.each { |k, v| groups[k] = strip_numeric v, k }
         groups.each { |k, v| groups[k] = Formula.new(v).canonical_tokens }
         groups.flat_map { |k, v| add_numeric v, k }
+      end
+
+      def to_s
+        @y.to_s + '~' + @tokens.join('+')
       end
 
       private
@@ -130,12 +139,10 @@ module Statsample
       end
 
       def split_to_tokens(formula)
-        formula = formula.gsub(/\s+/, '')
-        lhs_term, rhs = formula.split '~'
-        rhs_terms = rhs.split '+'
-        ([lhs_term] + rhs_terms).map { |t| Token(t) }
+        formula.split('+').map { |t| Token(t) }
       end
 
+      # ==========BEGIN==========
       # Helpers for reduce_formula
       Priority = %w(+ * / :)
       def priority_le? op1, op2
@@ -149,9 +156,7 @@ module Statsample
         stack = ['(']
         expr << ')'
         expr.each do |s|
-          if s =~ /[a-zA-Z]/
-            res_exp << s
-          elsif s == '('
+          if s == '('
             stack.push '('
           elsif Priority.include? s
             while priority_le? s, stack.last
@@ -163,6 +168,8 @@ module Statsample
               res_exp << stack.pop
             end
             stack.pop
+          else
+            res_exp << s
           end
         end
         res_exp
@@ -173,11 +180,11 @@ module Statsample
         # Scan through each symbol
         stack = []
         expr.each do |s|
-          if s =~ /[a-zA-Z]/
-            stack.push s
-          else
+          if Priority.include? s
             y, x = stack.pop, stack.pop
             stack << apply_operation(s, x, y)
+          else
+            stack.push s
           end
         end
         stack.pop
@@ -204,7 +211,8 @@ module Statsample
         else
           raise ArgumentError, "Invalid operation #{op}."
         end
-      end      
+      end
+      #==========END==========
     end    
   end
 end
