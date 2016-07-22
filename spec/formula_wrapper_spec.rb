@@ -77,6 +77,13 @@ describe Statsample::GLM::FormulaWrapper do
             'a+b+a:b+a:b:c'
         end
       end
+
+      context 'corner cases' do
+        context 'names of more than one character' do
+          include_context 'reduce formula', 'ax*bx:c' =>
+            'ax+bx:c+ax:bx:c'
+        end
+      end
     end
   end
 end

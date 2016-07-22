@@ -33,7 +33,7 @@ module Statsample
 
       def reduce_formula expr
         # First remove while spaces from exp
-        expr = expr.gsub ' ', ''
+        expr = expr.gsub(/\s+/, "")
         # Convert infix exp to postfix exp
         postfix_expr = to_postfix expr
         # Evaluate the expression
@@ -135,15 +135,10 @@ module Statsample
       end
 
       # Helpers for reduce_formula
+      Priority = %w(+ * / :)
       def priority_le? op1, op2
-        return false unless '*+/:'.include? op2
-        priority = {
-          '+' => 0,
-          '*' => 1,
-          '/' => 2,
-          ':' => 3    
-        }
-        priority[op1] <= priority[op2]
+        return false unless Priority.include? op2
+        Priority.index(op1) <= Priority.index(op2)
       end
       
       # to_postfix 'a+b' gives 'ab+'
@@ -156,7 +151,7 @@ module Statsample
             res_exp << s
           elsif s == '('
             stack.push '('
-          elsif '+*/:'.include? s
+          elsif Priority.include? s
             while priority_le? s, stack[-1]
               res_exp << stack.pop
             end
@@ -172,10 +167,10 @@ module Statsample
       end
       
       # eval_postfix 'ab*' gives 'a+b+a:b'
-      def eval_postfix exp
+      def eval_postfix expr
         # Scan through each symbol
         stack = []
-        exp.each_char do |s|
+        expr.each_char do |s|
           if s =~ /[a-zA-Z]/
             stack.push s
           else
@@ -195,14 +190,17 @@ module Statsample
       end
       
       def apply_operation op, x, y
-        if op == '+'
-          return x + op + y
-        elsif op == ':'
-          return apply_interact_op x, y
-        elsif op == '*'
-          return x + '+' + y + '+' + apply_interact_op(x, y)
-        elsif op == '/'
-          return x + '+' + apply_interact_op(x, y)
+        case op
+        when '+'
+          x + op + y
+        when ':'
+          apply_interact_op x, y
+        when '*'
+          x + '+' + y + '+' + apply_interact_op(x, y)
+        when '/'
+          x + '+' + apply_interact_op(x, y)
+        else
+          raise ArgumentError, "Invalid operation #{op}."
         end
       end      
     end    
