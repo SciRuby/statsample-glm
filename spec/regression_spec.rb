@@ -209,6 +209,18 @@ describe Statsample::GLM::Regression do
       end      
     end
 
+    context 'shortcut symbols' do
+      context 'symbol *' do
+        include_context 'formula checker', 'y~0+a*c' =>
+          %w[a c_yes c_no c_yes:a y]
+      end
+
+      context 'symbol /' do
+        include_context 'formula checker', 'y~a/c' =>
+          %w[a c_yes:a y]
+      end
+    end
+
     context 'corner case' do
       context 'example 1' do
         include_context 'formula checker', 'y~d:a+d:e' =>
