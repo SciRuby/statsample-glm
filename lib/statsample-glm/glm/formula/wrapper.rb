@@ -34,13 +34,13 @@ module Statsample
         @canonical_tokens = non_redundant_tokens
       end
 
-      def split_lhs_rhs expr
+      def split_lhs_rhs(expr)
         expr.split '~'
       end
 
-      def reduce_formula expr
+      def reduce_formula(expr)
         # Split the expression to array
-        expr = expr.split /(?=[+*\/:()])|(?<=[+*\/:()])/
+        expr = expr.split(/(?=[+*\/:()])|(?<=[+*\/:()])/)
         # Convert infix exp to postfix exp
         postfix_expr = to_postfix expr
         # Evaluate the expression
@@ -80,7 +80,7 @@ module Statsample
 
       TOKEN_0 = Token.new '0'
       TOKEN_1 = Token.new '1'
-      def Token val, full=true
+      def Token(val, full = true)
         return TOKEN_0 if val == '0'
         return TOKEN_1 if val == '1'
         Token.new(val, full)
@@ -88,7 +88,8 @@ module Statsample
 
       # Removes intercept token if term '0' is found in the formula.
       # Intercept token remains if term '1' is found.
-      # If neither term '0' nor term '1' is found then, intercept token is added.
+      # If neither term '0' nor term '1' is found then,
+      # intercept token is added.
       def manage_constant_term
         @tokens.unshift Token('1') unless
           @tokens.include?(Token('1')) ||
@@ -130,7 +131,7 @@ module Statsample
       end
 
       # Extract numeric interacting terms
-      # @param [Statsample::GLM::Token] token form which to extract numeric terms
+      # @param [Statsample::GLM::Token] token to extract numeric terms from
       # @return [Array] array of numericl terms
       def extract_numeric(token)
         terms = token.interact_terms
@@ -144,14 +145,14 @@ module Statsample
 
       # ==========BEGIN==========
       # Helpers for reduce_formula
-      PRIORITY = %w(+ * / :)
-      def priority_le? op1, op2
+      PRIORITY = %w(+ * / :).freeze
+      def priority_le?(op1, op2)
         return false unless PRIORITY.include? op2
         PRIORITY.index(op1) <= PRIORITY.index(op2)
       end
       
       # to_postfix 'a+b' gives 'ab+'
-      def to_postfix expr
+      def to_postfix(expr)
         res_exp = []
         stack = ['(']
         expr << ')'
@@ -159,14 +160,10 @@ module Statsample
           if s == '('
             stack.push '('
           elsif PRIORITY.include? s
-            while priority_le? s, stack.last
-              res_exp << stack.pop
-            end
+            res_exp << stack.pop while priority_le?(s, stack.last)
             stack.push s
           elsif s == ')'
-            until stack[-1] == '('
-              res_exp << stack.pop
-            end
+            res_exp << stack.pop until stack.last == '('
             stack.pop
           else
             res_exp << s
@@ -176,12 +173,13 @@ module Statsample
       end
       
       # eval_postfix 'ab*' gives 'a+b+a:b'
-      def eval_postfix expr
+      def eval_postfix(expr)
         # Scan through each symbol
         stack = []
         expr.each do |s|
           if PRIORITY.include? s
-            y, x = stack.pop, stack.pop
+            y = stack.pop
+            x = stack.pop
             stack << apply_operation(s, x, y)
           else
             stack.push s
@@ -190,29 +188,29 @@ module Statsample
         stack.pop
       end
       
-      def apply_interact_op x, y
+      def apply_interact_op(x, y)
         x = x.split('+').to_a
         y = y.split('+').to_a
         terms = x.product(y)
-        terms.map! { |term| term[0]+':'+term[1] }
-        return terms.join '+'
+        terms.map! { |term| "#{term[0]}:#{term[1]}" }
+        terms.join '+'
       end
       
-      def apply_operation op, x, y
+      def apply_operation(op, x, y)
         case op
         when '+'
-          x + op + y
+          [x, y].join op
         when ':'
           apply_interact_op x, y
         when '*'
-          x + '+' + y + '+' + apply_interact_op(x, y)
+          [x, y, apply_interact_op(x, y)].join '+'
         when '/'
-          x + '+' + apply_interact_op(x, y)
+          [x, apply_interact_op(x, y)].join '+'
         else
           raise ArgumentError, "Invalid operation #{op}."
         end
       end
       #==========END==========
-    end    
+    end
   end
 end

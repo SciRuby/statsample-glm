@@ -2,11 +2,11 @@ module Statsample
   module GLM
     # Class for performing regression
     class Regression
-
       # Initializes a regression object to fit model using formlua language
       # @param [String] formula formula for creating model
       # @param [Daru::DataFrame] df dataframe to be used for the fitting model
-      # @param [Symbol] method method of regression. For example, :logistic, :normal, etc.
+      # @param [Symbol] method method of regression.
+      #   For example, :logistic, :normal, etc.
       # @example
       #   df = Daru::DataFrame.from_csv 'spec/data/df.csv'
       #   df.to_category 'c', 'd', 'e'
@@ -64,8 +64,8 @@ module Statsample
       #   #               a  c_no:b c_yes:b
       #   #       0       6    62.1     0.0
       #   #       1      18     0.0    34.7
-      #   #       2       6    29.7     0.0      
-      def df_for_prediction df
+      #   #       2       6    29.7     0.0
+      def df_for_prediction(df)
         canonicalize_df(df)
       end
 
@@ -81,11 +81,11 @@ module Statsample
       #   #               a  c_no:b c_yes:b       y
       #   #       0       6    62.1     0.0       0
       #   #       1      18     0.0    34.7       1
-      #   #       2       6    29.7     0.0       1      
+      #   #       2       6    29.7     0.0       1
       def df_for_regression
         df = canonicalize_df(@df)
         df[@formula.y.value] = @df[@formula.y.value]
-        df        
+        df
       end
 
       private
@@ -98,7 +98,8 @@ module Statsample
       end
 
       def fit_model
-        @opts[:constant] = 1 if @formula.canonical_tokens.include? Token.new('1')
+        @opts[:constant] = 1 if
+          @formula.canonical_tokens.include? Token.new('1')
         @model = Statsample::GLM.compute(
           df_for_regression,
           @formula.y.value,
