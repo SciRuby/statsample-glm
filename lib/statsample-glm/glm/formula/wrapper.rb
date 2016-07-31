@@ -40,7 +40,7 @@ module Statsample
 
       def reduce_formula(expr)
         # Split the expression to array
-        expr = expr.split(/(?=[+*\/:()])|(?<=[+*\/:()])/)
+        expr = expr.split %r{(?=[+*/:()])|(?<=[+*/:()])}
         # Convert infix exp to postfix exp
         postfix_expr = to_postfix expr
         # Evaluate the expression
@@ -80,7 +80,7 @@ module Statsample
 
       TOKEN_0 = Token.new '0'
       TOKEN_1 = Token.new '1'
-      def Token(val, full = true)
+      def Token(val, full = true) # rubocop:disable Style/MethodName
         return TOKEN_0 if val == '0'
         return TOKEN_1 if val == '1'
         Token.new(val, full)
@@ -152,7 +152,7 @@ module Statsample
       end
 
       # to_postfix 'a+b' gives 'ab+'
-      def to_postfix(expr)
+      def to_postfix(expr) # rubocop:disable Metrics/MethodLength
         res_exp = []
         stack = ['(']
         expr << ')'

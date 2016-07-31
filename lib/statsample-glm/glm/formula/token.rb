@@ -38,7 +38,7 @@ module Statsample
           other.full.last == false
       end
 
-      def add(other)
+      def add(other) # rubocop:disable Metrics/AbcSize
         # 1: ANYTHING + FACTOR- : ANYTHING = FACTOR : ANYTHING
         # 2: ANYTHING + ANYTHING : FACTOR- = ANYTHING : FACTOR
         if size > other.size
