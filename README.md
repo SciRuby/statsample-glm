@@ -6,7 +6,7 @@
 
 Statsample-GLM is an extension of *Generalized Linear Models* to [Statsample](https://github.com/SciRuby/statsample), a suite of advance statistics in Ruby.
 
-Requires ruby 1.9.3 or higher.
+Requires ruby 2.0.0 or higher.
 
 ## Description
 
