@@ -20,34 +20,43 @@ module Statsample
         value == '1' ? 0 : interact_terms.size
       end
 
+      def condition_1?(other)
+        # 1: ANYTHING + FACTOR- : ANYTHING = FACTOR : ANYTHING
+        other.size == 2 &&
+          size == 1 &&
+          other.interact_terms.last == value &&
+          other.full.last == full.first &&
+          other.full.first == false
+      end
+
+      def condition_2?(other)
+        # 2: ANYTHING + ANYTHING : FACTOR- = ANYTHING : FACTOR
+        other.size == 2 &&
+          size == 1 &&
+          other.interact_terms.first == value &&
+          other.full.first == full.first &&
+          other.full.last == false
+      end
+
       def add(other)
-        # ANYTHING + FACTOR- : ANYTHING = FACTOR : ANYTHING
-        # ANYTHING + ANYTHING : FACTOR- = ANYTHING : FACTOR
+        # 1: ANYTHING + FACTOR- : ANYTHING = FACTOR : ANYTHING
+        # 2: ANYTHING + ANYTHING : FACTOR- = ANYTHING : FACTOR
         if size > other.size
           other.add self
 
-        elsif other.size == 2 &&
-              size == 1 &&
-              other.interact_terms.last == value &&
-              other.full.last == full.first &&
-              other.full.first == false
+        elsif condition_1? other
           Token.new(
             "#{other.interact_terms.first}:#{value}",
             [true, other.full.last]
           )
 
-        elsif other.size == 2 &&
-              size == 1 &&
-              other.interact_terms.first == value &&
-              other.full.first == full.first &&
-              other.full.last == false
+        elsif condition_2? other
           Token.new(
             "#{value}:#{other.interact_terms.last}",
             [other.full.first, true]
           )
 
-        elsif value == '1' &&
-              other.size == 1
+        elsif value == '1' && other.size == 1
           Token.new(other.value, true)
         end
       end

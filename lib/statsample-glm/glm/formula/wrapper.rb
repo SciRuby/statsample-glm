@@ -150,7 +150,7 @@ module Statsample
         return false unless PRIORITY.include? op2
         PRIORITY.index(op1) <= PRIORITY.index(op2)
       end
-      
+
       # to_postfix 'a+b' gives 'ab+'
       def to_postfix(expr)
         res_exp = []
@@ -171,7 +171,7 @@ module Statsample
         end
         res_exp
       end
-      
+
       # eval_postfix 'ab*' gives 'a+b+a:b'
       def eval_postfix(expr)
         # Scan through each symbol
@@ -187,7 +187,7 @@ module Statsample
         end
         stack.pop
       end
-      
+
       def apply_interact_op(x, y)
         x = x.split('+').to_a
         y = y.split('+').to_a
@@ -195,7 +195,7 @@ module Statsample
         terms.map! { |term| "#{term[0]}:#{term[1]}" }
         terms.join '+'
       end
-      
+
       def apply_operation(op, x, y)
         case op
         when '+'

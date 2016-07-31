@@ -1,4 +1,4 @@
-RSpec.shared_context "formula checker" do |params|
+RSpec.shared_context 'formula checker' do |params|
   let(:formula) { params.keys.first }
   let(:vectors) { params.values.first }
 
@@ -6,5 +6,5 @@ RSpec.shared_context "formula checker" do |params|
   subject { model.df_for_regression }
 
   it { is_expected.to be_a Daru::DataFrame }
-  its(:'vectors.to_a.sort') { is_expected.to eq vectors.sort } 
+  its(:'vectors.to_a.sort') { is_expected.to eq vectors.sort }
 end

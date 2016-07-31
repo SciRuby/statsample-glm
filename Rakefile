@@ -28,6 +28,10 @@ task :pry do |task|
   run *cmd
 end
 
+task :rubocop do |task|
+  run 'rubocop' rescue nil
+end
+
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec)

@@ -1,4 +1,4 @@
-RSpec.shared_context "reduce formula" do |params|
+RSpec.shared_context 'reduce formula' do |params|
   let(:input) { params.keys.first }
   let(:result) { params.values.first }
 
