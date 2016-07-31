@@ -42,6 +42,38 @@ describe Statsample::GLM::Regression do
         expect_similar_hash(subject.coefficients(:hash), expected_hash, 1e-2)
       end          
     end
+
+    context 'other regression types' do
+      # TODO: Right now it only verifies appropriate model gets generated
+      # with appropriate coefficients but it doesn't verify the actual values
+      # of coefficients.
+      context 'normal' do
+        let(:model) { described_class.new 'a ~ b:c', df, :normal, algorithm: :mle }
+        subject { model.model }
+        
+        it { is_expected.to be_a Statsample::GLM::Normal }
+        it { expect(subject.coefficients(:hash).keys).to eq(
+          [:"c_no:b", :"c_yes:b", :constant]) }
+      end
+
+      context 'poisson' do
+        let(:model) { described_class.new 'a ~ b:c', df, :poisson}
+        subject { model.model }
+        
+        it { is_expected.to be_a Statsample::GLM::Poisson }
+        it { expect(subject.coefficients(:hash).keys).to eq(
+          [:"c_no:b", :"c_yes:b", :constant]) }        
+      end
+
+      context 'probit' do
+        let(:model) { described_class.new 'a ~ b:c', df, :probit, algorithm: :mle}
+        subject { model.model }
+        
+        it { is_expected.to be_a Statsample::GLM::Probit }
+        it { expect(subject.coefficients(:hash).keys).to eq(
+          [:"c_no:b", :"c_yes:b", :constant]) }
+      end
+    end
   end
   
   context '#predict' do
