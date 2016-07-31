@@ -10,8 +10,8 @@ describe Statsample::GLM::Regression do
   context '#model' do
     context 'numerical' do
       let(:model) { described_class.new 'y ~ a+b+a:b', df, :logistic }
-      let(:expected_hash) { {a: 1.14462, b: -0.04292, 'a:b': -0.03011,
-        constant: 4.73822 } }
+      let(:expected_hash) { {:a => 1.14462, :b => -0.04292, :'a:b' => -0.03011,
+        :constant => 4.73822 } }
       subject { model.model }
 
       it { is_expected.to be_a Statsample::GLM::Logistic }
@@ -33,8 +33,8 @@ describe Statsample::GLM::Regression do
     
     context 'category and numeric' do
       let(:model) { described_class.new 'y ~ a+b:c', df, :logistic }
-      let(:expected_hash) { {constant: 16.8145, a: -0.4315, 'c_no:b': -0.2344,
-        'c_yes:b': -0.2344} }
+      let(:expected_hash) { {:constant => 16.8145, :a => -0.4315,
+        :'c_no:b' => -0.2344, :'c_yes:b' => -0.2344} }
       subject { model.model }
 
       it { is_expected.to be_a Statsample::GLM::Logistic }
