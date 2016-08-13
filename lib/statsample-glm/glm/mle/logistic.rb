@@ -18,7 +18,7 @@ module Statsample
        protected
         # F(B'Xi)
         def f(b,xi)
-          p_bx = (xi*b)[0,0] 
+          p_bx = (xi.dot(b))[0,0] 
           res  = (1.0/(1.0+Math::exp(-p_bx)))
           if res == 0.0
             res = 1e-15
@@ -61,7 +61,7 @@ module Statsample
               fd[j][0] -= value1*row[j]
             end
           end
-          Matrix.rows(fd, true)
+          N[*fd]
         end
         # Second derivative of log-likelihood function
         # x: Matrix (NxM)
@@ -91,7 +91,7 @@ module Statsample
         end
 
         def measurement x, b
-          (x * b).map { |y| 1/(1 + Math.exp(-y)) }
+          (x.dot b).map { |y| 1/(1 + Math.exp(-y)) }
         end
         
        private
