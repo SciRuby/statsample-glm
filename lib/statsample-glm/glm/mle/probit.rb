@@ -49,10 +49,10 @@ module Statsample
         # y: Matrix (Nx1)
         # p: Matrix (Mx1)
         def first_derivative(x,y,b)
-          raise "x.rows!=y.rows" if x.row_size!=y.row_size
-          raise "x.columns!=p.rows" if x.column_size!=b.row_size            
-          n = x.row_size
-          k = x.column_size
+          raise "x.rows!=y.rows" if x.rows!=y.rows
+          raise "x.columns!=p.rows" if x.cols!=b.rows            
+          n = x.rows
+          k = x.cols
           fd = Array.new(k)
           k.times {|i| fd[i] = [0.0]}
           n.times do |i|
@@ -71,10 +71,10 @@ module Statsample
         # p: Matrix (Mx1)
         
         def second_derivative(x,y,b)
-          raise "x.rows!=y.rows" if x.row_size!=y.row_size
-          raise "x.columns!=p.rows" if x.column_size!=b.row_size
-          n = x.row_size
-          k = x.column_size
+          raise "x.rows!=y.rows" if x.rows!=y.rows
+          raise "x.columns!=p.rows" if x.cols!=b.rows
+          n = x.rows
+          k = x.cols
           if Statsample.has_gsl?
             sum=GSL::Matrix.zeros(k)
           else
