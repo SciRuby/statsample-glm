@@ -20,14 +20,14 @@ module Statsample
           @iterations     = nil
           @parameters     = nil
 
-          x = @data_set.to_matrix
-          y = @dependent.to_matrix(:vertical)
+          x = @data_set.to_nmatrix
+          y = @dependent.to_nmatrix(:vertical)
 
           @coefficients   = newton_raphson x, y
           @log_likelihood = _log_likelihood x, y, @coefficients
           @fitted_mean_values = create_vector measurement(x, @coefficients).to_a.flatten
           @residuals = @dependent - @fitted_mean_values
-          @degrees_of_freedom  = @dependent.count - x.column_size
+          @degrees_of_freedom  = @dependent.count - x.cols
 
           # This jugad is done because the last vector index for Normal is sigma^2
           # which we dont want to return to the user.
@@ -66,14 +66,14 @@ module Statsample
           if new_data_set.nil? then
             @fitted_mean_values
           else
-            new_data_matrix = new_data_set.to_matrix
+            new_data_matrix = new_data_set.to_nmatrix
             # this if statement is done because Statsample::GLM::MLE::Normal#measurement expects that
             # the coefficient vector has a redundant last element (which is discarded by #measurement
             # in further computation)
             b = if self.is_a?(Statsample::GLM::MLE::Normal) then
-                  Matrix.column_vector(@coefficients.to_a + [nil])
+                  N[@coefficients.to_a + [nil]].transpose
                 else
-                  @coefficients.to_matrix(axis=:vertical)
+                  @coefficients.to_nmatrix(axis=:vertical)
                 end
             create_vector measurement(new_data_matrix, b).to_a.flatten
           end
@@ -93,9 +93,9 @@ module Statsample
           else
               parameters = start_values.dup
           end
-          k = parameters.row_size
+          k = parameters.rows
 
-          raise "n on y != n on x" if x.row_size != y.row_size
+          raise "n on y != n on x" if x.rows != y.rows
           h  = nil
           fd = nil
 
@@ -109,11 +109,8 @@ module Statsample
             @iterations = i + 1
 
             h = second_derivative(x,y,parameters)
-            if h.singular?
-              raise "Hessian is singular!"
-            end
             fd = first_derivative(x,y,parameters)
-            parameters = parameters - (h.inverse * (fd))
+            parameters = parameters - (h.solve fd)
             
             if @stop_criteria == :parameters
               flag = true
@@ -124,7 +121,7 @@ module Statsample
               end
               
               if flag
-                @var_cov_matrix = h.inverse*-1.0
+                @var_cov_matrix = h.invert*-1.0
                 return parameters
               end
               old_parameters = parameters
@@ -133,7 +130,7 @@ module Statsample
                 new_likelihood = _log_likelihood(x,y,parameters)
 
                 if(new_likelihood < old_likelihood) or ((new_likelihood - old_likelihood) / new_likelihood).abs < @opts[:epsilon]
-                  @var_cov_matrix = h.inverse*-1.0
+                  @var_cov_matrix = h.invert*-1.0
                   break;
                 end
                 old_likelihood = new_likelihood
@@ -150,8 +147,8 @@ module Statsample
         # Calculate likelihood for matrices x and y, given b parameters
         def likelihood x,y,b
           prod = 1
-          x.row_size.times{|i|
-            xi=Matrix.rows([x.row(i).to_a.collect{|v| v.to_f}])
+          x.rows.times{|i|
+            xi=N[x.row(i).to_a.collect{|v| v.to_f}]
             y_val=y[i,0].to_f
             #fbx=f(b,x)
             prod=prod*likelihood_i(xi, y_val ,b)
@@ -162,8 +159,8 @@ module Statsample
         # Calculate log likelihood for matrices x and y, given b parameters
         def _log_likelihood x,y,b 
           sum = 0
-          x.row_size.times{|i|
-            xi = Matrix.rows([x.row(i).to_a.collect{|v| v.to_f}])
+          x.rows.times{|i|
+            xi = N[x.row(i).to_a.collect{|v| v.to_f}]
             y_val = y[i,0].to_f
             sum += log_likelihood_i xi, y_val, b
           }
@@ -173,10 +170,10 @@ module Statsample
         
         # Creates a zero matrix Mx1, with M=x.M
         def set_default_parameters x
-          fd = [0.0] * x.column_size
+          fd = [0.0] * x.cols
 
           fd.push(0.1) if self.is_a? Statsample::GLM::MLE::Normal
-          Matrix.columns([fd])
+          N[fd].transpose
         end
 
         def create_vector arr

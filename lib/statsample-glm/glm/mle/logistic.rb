@@ -18,7 +18,7 @@ module Statsample
        protected
         # F(B'Xi)
         def f(b,xi)
-          p_bx = (xi*b)[0,0] 
+          p_bx = (xi.dot(b))[0,0] 
           res  = (1.0/(1.0+Math::exp(-p_bx)))
           if res == 0.0
             res = 1e-15
@@ -45,11 +45,11 @@ module Statsample
         # y: Matrix (Nx1)
         # p: Matrix (Mx1)
         def first_derivative(x,y,p)
-          raise "x.rows != y.rows"    if x.row_size != y.row_size
-          raise "x.columns != p.rows" if x.column_size != p.row_size            
+          raise "x.rows != y.rows"    if x.rows != y.rows
+          raise "x.columns != p.rows" if x.cols != p.rows            
     
-          n  = x.row_size
-          k  = x.column_size
+          n  = x.rows
+          k  = x.cols
           fd = Array.new(k)
           k.times {|i| fd[i] = [0.0]}
     
@@ -61,17 +61,17 @@ module Statsample
               fd[j][0] -= value1*row[j]
             end
           end
-          Matrix.rows(fd, true)
+          N[*fd]
         end
         # Second derivative of log-likelihood function
         # x: Matrix (NxM)
         # y: Matrix (Nx1)
         # p: Matrix (Mx1)
         def second_derivative(x,y,p2)
-          raise "x.rows!=y.rows" if x.row_size!=y.row_size
-          raise "x.columns!=p.rows" if x.column_size!=p2.row_size             
-          n = x.row_size
-          k = x.column_size
+          raise "x.rows!=y.rows" if x.rows!=y.rows
+          raise "x.columns!=p.rows" if x.cols!=p2.rows             
+          n = x.rows
+          k = x.cols
           sd = Array.new(k)
           k.times do |i|
             arr = Array.new(k)
@@ -87,11 +87,11 @@ module Statsample
               end
             end
           end
-          Matrix.rows(sd, true)
+          N[*sd]
         end
 
         def measurement x, b
-          (x * b).map { |y| 1/(1 + Math.exp(-y)) }
+          (x.dot b).map { |y| 1/(1 + Math.exp(-y)) }
         end
         
        private
