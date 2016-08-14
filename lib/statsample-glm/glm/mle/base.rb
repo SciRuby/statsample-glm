@@ -109,11 +109,8 @@ module Statsample
             @iterations = i + 1
 
             h = second_derivative(x,y,parameters)
-            if h.det() == 0
-              raise "Hessian is singular!"
-            end
             fd = first_derivative(x,y,parameters)
-            parameters = parameters - (h.invert.dot fd)
+            parameters = parameters - (h.solve fd)
             
             if @stop_criteria == :parameters
               flag = true
