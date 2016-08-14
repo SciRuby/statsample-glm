@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   # spec.add_runtime_dependency 'daru', '~> 0.1'
   spec.add_runtime_dependency 'statsample', '~> 2.0'
   spec.add_runtime_dependency 'nmatrix'
+  spec.add_runtime_dependency 'nmatrix-lapacke'
 
   spec.add_development_dependency 'bundler', '~> 1.10'
   spec.add_development_dependency 'rake'
