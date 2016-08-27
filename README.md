@@ -36,10 +36,13 @@ To use the library
 ### Blogs
 
 * [Generalized Linear Models: Introduction and implementation in Ruby](http://v0dro.github.io/blog/2014/09/21/code-generalized-linear-models-introduction-and-implementation-in-ruby/).
+* [Formula language implementation in Statsample-GLM](http://lokeshh.github.io/blog/2016/07/19/formula-language-week7-8/)
+* [Shortcut symbols in formula language](http://lokeshh.github.io/blog/2016/07/31/shortcut-symbols/)
 
 ### Case Studies
 
 * [Logistic Regression Analysis with daru and statsample-glm](http://nbviewer.ipython.org/github/SciRuby/sciruby-notebooks/blob/master/Data%20Analysis/Logistic%20Regression%20with%20daru%20and%20statsample-glm.ipynb)
+* [Logistic Regression involving categorical variable](http://nbviewer.jupyter.org/github/SciRuby/sciruby-notebooks/blob/master/Data%20Analysis/Categorical%20Data/examples/[Example]%20Formula%20language%20in%20Statsample-GLM.ipynb)
 
 ## Documentation 
 
