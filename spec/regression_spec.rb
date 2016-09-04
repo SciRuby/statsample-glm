@@ -117,7 +117,7 @@ describe Statsample::GLM::Regression do
           'gre' => [rank_df['gre'].mean]*4,
           'gpa' => [rank_df['gpa'].mean]*4,
           'rank' => [1,2,3,4]
-          })
+          }, order: ['rank', 'gpa', 'gre'])
       end
       subject { model.predict new_data }
       
