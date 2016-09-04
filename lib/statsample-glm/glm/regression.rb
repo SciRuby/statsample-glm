@@ -66,6 +66,18 @@ module Statsample
       #   #       1      18     0.0    34.7
       #   #       2       6    29.7     0.0
       def df_for_prediction(df)
+        # TODO: This code can be improved.
+        # See https://github.com/v0dro/daru/issues/245
+        df = Daru::DataFrame.new(df.to_h,
+          order: @df.vectors.to_a & df.vectors.to_a
+        )
+        df.vectors.each do |vec|
+          if @df[vec].category?
+            df[vec] = df[vec].to_category
+            df[vec].categories = @df[vec].categories
+            df[vec].base_category = @df[vec].base_category
+          end
+        end
         canonicalize_df(df)
       end
 
