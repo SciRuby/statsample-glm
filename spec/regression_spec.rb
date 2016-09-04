@@ -3,8 +3,10 @@ require 'shared_context/formula_checker.rb'
 
 describe Statsample::GLM::Regression do
   let(:df) { Daru::DataFrame.from_csv 'spec/data/df.csv' }
+  let(:rank_df) { Daru::DataFrame.from_csv 'spec/data/binary.csv' }
   before do
     df.to_category 'c', 'd', 'e'
+    rank_df.to_category 'rank'
   end
 
   context '#model' do
@@ -94,7 +96,7 @@ describe Statsample::GLM::Regression do
 
       it 'verifies the prediction' do
         expect_similar_vector(subject, [0.3333, 0.8, 0.3333], 1e-4)
-      end  
+      end
     end
     
     context 'category and numeric' do
@@ -105,7 +107,24 @@ describe Statsample::GLM::Regression do
       it 'verifies the prediction' do
         expect_similar_vector(subject, [0.4183, 0.6961, 0.9993], 1e-4)
       end 
-    end    
+    end
+    
+    context "order doesn't matter" do
+      let(:model) { described_class.new 'admit ~ gpa + gre + rank',
+        rank_df, :logistic }
+      let(:new_data) do
+        Daru::DataFrame.new({
+          'gre' => [rank_df['gre'].mean]*4,
+          'gpa' => [rank_df['gpa'].mean]*4,
+          'rank' => [1,2,3,4]
+          })
+      end
+      subject { model.predict new_data }
+      
+      it 'verfies the prediction' do
+        expect_similar_vector(subject, [0.5166, 0.3523, 0.2186, 0.1847], 1e-4)
+      end
+    end
   end
 
   context '#df_for_regression' do
